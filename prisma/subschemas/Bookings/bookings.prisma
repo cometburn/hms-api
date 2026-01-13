@@ -1,0 +1,22 @@
+
+model Booking {
+  id                              Int      @id @default(autoincrement())
+  hotel_id                        Int
+  hotel                           Hotel    @relation(fields: [hotel_id], references: [id])
+  user_id                         Int
+  user                            User     @relation(fields: [user_id], references: [id])
+  room_id                         Int
+  room                            Room    @relation(fields: [room_id], references: [id])
+  start_time                      DateTime
+  end_time                        DateTime
+  total_price                     Float
+  status                          String // pending, confirmed, cancelled, completed
+  payment_status                  String // unpaid, paid, refunded
+  type                            String
+  orders                          Order[]
+
+  created_at                      DateTime @default(now())
+  updated_at                      DateTime @updatedAt
+
+  @@map("bookings")
+} 

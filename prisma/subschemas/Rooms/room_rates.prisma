@@ -1,0 +1,25 @@
+
+model RoomRate {
+  id                                      Int      @id @default(autoincrement())
+
+  hotel_id                                Int
+  hotel                                   Hotel    @relation(fields: [hotel_id], references: [id])
+  room_type_id                            Int
+  room_type                               RoomType @relation(fields: [room_type_id], references: [id])
+
+  name                                    String
+  rate_type                               String // hourly, nightly, block
+  duration_minutes                        Int?
+  base_price                              Float
+  extra_person_rate                       Float
+  is_dynamic                              Boolean  @default(false)
+
+  room_promos                             RoomPromo[]
+  bookings                                Booking[]
+  rooms                                   Room[]
+
+  created_at                              DateTime @default(now())
+  updated_at                              DateTime @updatedAt
+
+  @@map("room_rates")
+} 

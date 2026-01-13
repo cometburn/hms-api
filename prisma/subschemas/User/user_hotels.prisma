@@ -1,0 +1,17 @@
+model UserHotel {
+  id                    Int       @id @default(autoincrement())
+
+  hotel_id              Int
+  hotel                 Hotel     @relation(fields: [hotel_id], references: [id])
+
+  user_id               Int
+  user                  User      @relation(fields: [user_id], references: [id])
+
+  owner_id              Int?
+  owner                 User?     @relation("OwnerUser", fields: [owner_id], references: [id])
+
+  is_default            Boolean   @default(false) 
+
+  @@unique([user_id, hotel_id])
+  @@map("user_hotels")
+}

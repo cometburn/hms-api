@@ -1,0 +1,17 @@
+
+model RoomType {
+  id                                    Int      @id @default(autoincrement())
+  hotel_id                              Int
+  hotel                                 Hotel    @relation(fields: [hotel_id], references: [id])
+  name                                  String
+  description                           String?
+  bookings                              Booking[]
+  room_rates                            RoomRate[]
+  rooms                                 Room[]
+
+  created_at                            DateTime @default(now())
+  updated_at                            DateTime @updatedAt
+
+  @@unique([hotel_id, name])
+  @@map("room_types")
+} 

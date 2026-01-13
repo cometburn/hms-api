@@ -1,0 +1,283 @@
+//🧩Don't Edit this file.✨Generated in Mon Oct 27 2025 21:01:11 GMT+0800 (Philippine Standard Time)✨
+
+model Booking {
+  id             Int      @id @default(autoincrement())
+  hotel_id       Int
+  hotel          Hotel    @relation(fields: [hotel_id], references: [id])
+  user_id        Int
+  user           User     @relation(fields: [user_id], references: [id])
+  room_id        Int
+  room           Room     @relation(fields: [room_id], references: [id])
+  start_time     DateTime
+  end_time       DateTime
+  total_price    Float
+  status         String // pending, confirmed, cancelled, completed
+  payment_status String // unpaid, paid, refunded
+  type           String
+  orders         Order[]
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  RoomRate   RoomRate? @relation(fields: [roomRateId], references: [id])
+  roomRateId Int?
+  RoomType   RoomType? @relation(fields: [roomTypeId], references: [id])
+  roomTypeId Int?
+
+  @@map("bookings")
+}
+
+model Hotel {
+  id      Int    @id @default(autoincrement())
+  name    String
+  address String
+
+  room_type  RoomType[]
+  room_rates RoomRate[]
+  bookings   Booking[]
+  products   Product[]
+  rooms      Room[]
+
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  RoomPromo  RoomPromo[]
+  UserHotel  UserHotel[]
+
+  @@map("hotels")
+}
+
+model OrderItem {
+  id          Int     @id @default(autoincrement())
+  order_id    Int
+  order       Order   @relation(fields: [order_id], references: [id])
+  product_id  Int
+  product     Product @relation(fields: [product_id], references: [id])
+  quantity    Int
+  unit_price  Float
+  total_price Float
+  notes       String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("order_items")
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  booking_id  Int
+  booking     Booking     @relation(fields: [booking_id], references: [id])
+  order_time  DateTime
+  total_price Float
+  status      String
+  notes       String?
+  order_items OrderItem[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model ProductMovement {
+  id         Int     @id @default(autoincrement())
+  user_id    Int
+  user       User    @relation(fields: [user_id], references: [id])
+  product_id Int
+  product    Product @relation(fields: [product_id], references: [id])
+  type       String
+  quantity   Int
+  source     String?
+  note       String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("product_movements")
+}
+
+model Product {
+  id                Int               @id @default(autoincrement())
+  hotel_id          Int
+  hotel             Hotel             @relation(fields: [hotel_id], references: [id])
+  name              String
+  sku               String?
+  category          String?
+  price             Float
+  track_stock       Boolean           @default(true)
+  stock_qty         Int
+  unit              String?
+  is_active         Boolean           @default(true)
+  product_movements ProductMovement[]
+  orderItems        OrderItem[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("products")
+}
+
+model RoomPromo {
+  id                Int       @id @default(autoincrement())
+  hotel_id          Int
+  hotel             Hotel     @relation(fields: [hotel_id], references: [id])
+  name              String
+  room_rate_id      Int
+  room_rate         RoomRate  @relation(fields: [room_rate_id], references: [id])
+  date_start        DateTime?
+  date_end          DateTime?
+  days_of_week      Int[] // 0-6 for Sunday-Saturday
+  time_start        String?
+  time_end          String?
+  price             Float
+  note              String?
+  extra_person_rate Float
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("room_promos")
+}
+
+model RoomRate {
+  id Int @id @default(autoincrement())
+
+  hotel_id     Int
+  hotel        Hotel    @relation(fields: [hotel_id], references: [id])
+  room_type_id Int
+  room_type    RoomType @relation(fields: [room_type_id], references: [id])
+
+  name              String
+  rate_type         String // hourly, nightly, block
+  duration_minutes  Int?
+  base_price        Float
+  extra_person_rate Float
+  is_dynamic        Boolean @default(false)
+
+  room_promos RoomPromo[]
+  bookings    Booking[]
+  rooms       Room[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("room_rates")
+}
+
+model RoomType {
+  id          Int        @id @default(autoincrement())
+  hotel_id    Int
+  hotel       Hotel      @relation(fields: [hotel_id], references: [id])
+  name        String
+  description String?
+  bookings    Booking[]
+  room_rates  RoomRate[]
+  rooms       Room[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([hotel_id, name])
+  @@map("room_types")
+}
+
+model Room {
+  id           Int       @id @default(autoincrement())
+  hotel_id     Int
+  hotel        Hotel     @relation(fields: [hotel_id], references: [id])
+  room_type_id Int
+  roomType     RoomType  @relation(fields: [room_type_id], references: [id])
+  room_rate_id Int
+  room_rate    RoomRate  @relation(fields: [room_rate_id], references: [id])
+  name         String
+  floor        String?
+  status       String // occupied, vacant, on repair, reserved
+  notes        String?
+  bookings     Booking[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("rooms")
+}
+
+model Subscription {
+  id              Int       @id @default(autoincrement())
+  user_id         Int
+  user            User      @relation(fields: [user_id], references: [id])
+  plan            String
+  status          String
+  starts_at       DateTime?
+  ends_at         DateTime?
+  trial_ends_at   DateTime?
+  renewal_period  String
+  payment_method  String?
+  subscription_id String?
+  customer_id     String?
+  paid_at         DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("subscriptions")
+}
+
+model UserHotel {
+  id Int @id @default(autoincrement())
+
+  hotel_id Int
+  hotel    Hotel @relation(fields: [hotel_id], references: [id])
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+
+  owner_id Int?
+  owner    User? @relation("OwnerUser", fields: [owner_id], references: [id])
+
+  is_default Boolean @default(false)
+
+  @@unique([user_id, hotel_id])
+  @@map("user_hotels")
+}
+
+model UserType {
+  id   Int    @id @default(autoincrement())
+  name String
+  User User[]
+
+  @@map("user_types")
+}
+
+model User {
+  id            Int     @id @default(autoincrement())
+  email         String  @unique
+  password      String?
+  status        String
+  first_name    String
+  last_name     String
+  refresh_token String?
+  google_id     String?
+  avatar        String?
+
+  user_type    UserType @relation(fields: [user_type_id], references: [id])
+  user_type_id Int
+
+  subscriptions     Subscription[]
+  bookings          Booking[]
+  product_movements ProductMovement[]
+  hotels            UserHotel[]
+  owned_hotels      UserHotel[]       @relation("OwnerUser")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("users")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

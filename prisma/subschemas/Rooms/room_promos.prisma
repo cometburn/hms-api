@@ -1,0 +1,21 @@
+model RoomPromo {
+  id                               Int        @id @default(autoincrement())
+  hotel_id                         Int
+  hotel                            Hotel    @relation(fields: [hotel_id], references: [id])
+  name                             String
+  room_rate_id                     Int
+  room_rate                        RoomRate   @relation(fields: [room_rate_id], references: [id])
+  date_start                       DateTime?
+  date_end                         DateTime?
+  days_of_week                     Int[]     // 0-6 for Sunday-Saturday
+  time_start                       String?
+  time_end                         String?
+  price                            Float
+  note                             String?
+  extra_person_rate                Float
+
+  created_at                       DateTime   @default(now())
+  updated_at                       DateTime   @updatedAt
+
+  @@map("room_promos")
+}

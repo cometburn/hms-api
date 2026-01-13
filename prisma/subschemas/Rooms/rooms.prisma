@@ -1,0 +1,20 @@
+
+model Room {
+  id                                  Int       @id @default(autoincrement())
+  hotel_id                            Int
+  hotel                               Hotel     @relation(fields: [hotel_id], references: [id])
+  room_type_id                        Int
+  roomType                            RoomType  @relation(fields: [room_type_id], references: [id])
+  room_rate_id                        Int
+  room_rate                           RoomRate @relation(fields: [room_rate_id], references: [id])
+  name                                String
+  floor                               String?
+  status                              String // occupied, vacant, on repair, reserved
+  notes                               String?
+  bookings                            Booking[]
+
+  created_at                          DateTime @default(now())
+  updated_at                          DateTime @updatedAt
+
+  @@map("rooms")
+} 

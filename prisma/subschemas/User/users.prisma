@@ -1,0 +1,27 @@
+
+model User {
+  id                              Int @id @default(autoincrement())
+  email                           String            @unique
+  password                        String?
+  status                          String
+  first_name                      String
+  last_name                       String
+  refresh_token                   String?
+  google_id                       String?
+  avatar                          String?
+
+  user_type                       UserType          @relation(fields: [user_type_id], references: [id])
+  user_type_id                    Int
+
+  subscriptions                   Subscription[]
+  bookings                        Booking[]
+  product_movements               ProductMovement[]
+  hotels                          UserHotel[]
+  owned_hotels                    UserHotel[] @relation("OwnerUser")
+
+
+  created_at                      DateTime          @default(now())
+  updated_at                      DateTime          @updatedAt
+
+  @@map("users")
+} 

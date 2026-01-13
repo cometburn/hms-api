@@ -1,0 +1,17 @@
+model Hotel {
+  id                    Int @id @default(autoincrement())
+  name                  String
+  address               String
+
+  room_type             RoomType[]
+  room_rates            RoomRate[]
+  bookings              Booking[]
+  products              Product[]
+  rooms                 Room[]
+
+
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  @@map("hotels")
+} 
