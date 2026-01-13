@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { errorHandler } from "@/middlewares/error.middleware";
+import { errorHandler } from "./v1/middlewares/error.middleware";
 import apiRoute from "@/routes/api.route";
 import cookieParser from "cookie-parser";
 
