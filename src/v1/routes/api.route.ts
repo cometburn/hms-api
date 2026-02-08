@@ -9,12 +9,13 @@ import roomPromoRoute from "@/routes/roomPromo.route";
 import { protect } from "@/middlewares/auth.middleware";
 
 const apiRoute = Router();
+const routeVersion = "v1";
 
-apiRoute.use("/auth", authRoute);
-apiRoute.use("/hotels", protect, hotelRoute);
-apiRoute.use("/room-types", protect, roomTypeRoute);
-apiRoute.use("/room-rates", protect, roomRateRoute);
-apiRoute.use("/room-promos", protect, roomPromoRoute);
-apiRoute.use("/users", protect, userRoute);
+apiRoute.use(`/${routeVersion}/auth`, authRoute);
+apiRoute.use(`/${routeVersion}/hotels`, protect, hotelRoute);
+apiRoute.use(`/${routeVersion}/room-types`, protect, roomTypeRoute);
+apiRoute.use(`/${routeVersion}/room-rates`, protect, roomRateRoute);
+apiRoute.use(`/${routeVersion}/room-promos`, protect, roomPromoRoute);
+apiRoute.use(`/${routeVersion}/users`, protect, userRoute);
 
 export default apiRoute;

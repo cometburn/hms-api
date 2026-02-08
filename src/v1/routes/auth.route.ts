@@ -15,7 +15,7 @@ const authRoute = Router();
 
 authRoute.post("/login", withValidation(loginSchema, login));
 authRoute.post("/logout", protect, logout);
-authRoute.post("/refresh-token", refreshToken);
+authRoute.post("/refresh", refreshToken);
 authRoute.get("/me", protect, me);
 authRoute.post("/google", googleLogin);
 
