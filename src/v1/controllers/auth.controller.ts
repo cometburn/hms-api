@@ -32,6 +32,7 @@ export const login = async (req: Request, res: Response) => {
       user_type_id: user.user_type_id,
       hotels: userHotels,
       subscription: subscription,
+      default_hotel_id: userHotels.find((h) => h.is_default)?.id ?? null
     },
   });
 };
@@ -72,6 +73,7 @@ export const me = async (req: Request, res: Response) => {
     user_type_id: foundUser.user_type_id,
     hotels: userHotels,
     subscription: subscription,
+    default_hotel_id: userHotels.find((h) => h.is_default)?.id ?? null
   });
 };
 
@@ -103,6 +105,7 @@ export const googleLogin = async (
       user_type_id: user.user_type_id,
       hotels: userHotels,
       subscription,
+      default_hotel_id: userHotels.find((h) => h.is_default)?.id ?? null
     },
   });
 };
