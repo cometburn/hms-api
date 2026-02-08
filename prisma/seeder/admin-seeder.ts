@@ -64,7 +64,7 @@ async function main() {
   );
 
   // You can use createMany if you don’t need to relate other models
-  await prisma.users.createMany({
+  await prisma.user.createMany({
     data: hashedUsers,
     skipDuplicates: true, // optional
   });
