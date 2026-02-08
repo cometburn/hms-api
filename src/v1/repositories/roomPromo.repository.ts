@@ -15,7 +15,7 @@ export const getRoomPromos = async (
         mode: "insensitive",
       },
     },
-    orderBy: { created_at: "asc" },
+    orderBy: { name: "asc" },
     skip,
     take: limit,
   });

@@ -23,7 +23,7 @@ export const getRoomTypes = async (
         mode: "insensitive",
       },
     },
-    orderBy: { created_at: "asc" },
+    orderBy: { name: "asc" },
     ...(skip !== undefined && { skip }),
     ...(take !== undefined && { take }),
   });
