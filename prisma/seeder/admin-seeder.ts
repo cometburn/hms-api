@@ -21,7 +21,7 @@ async function main() {
     })
   );
 
-  await prisma.userTypes.createMany({
+  await prisma.userType.createMany({
     data: promiseUserTypes,
     skipDuplicates: true,
   });
