@@ -6,12 +6,16 @@
     "outDir": "dist",
     "baseUrl": "src",
     "paths": {
-      "@/*": ["v1/*"]
+      "@/*": [
+        "v1/*"
+      ]
     },
     "moduleResolution": "node",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
-
