@@ -43,6 +43,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+// Block directory listing
+app.get("/", (req, res) => {
+  res.send("API is running. Use /api endpoints.");
+});
+
 // Routes
 app.use("/api", apiRoute);
 
