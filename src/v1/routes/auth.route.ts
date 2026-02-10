@@ -8,7 +8,7 @@ import {
 } from "@/controllers/auth.controller";
 import { protect } from "@/middlewares/auth.middleware";
 
-import { loginSchema } from "@/interfaces/types/auth";
+import { loginSchema } from "@/interfaces/types/auth.types";
 import { withValidation } from "@/middlewares/validation.middleware";
 
 const authRoute = Router();

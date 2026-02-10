@@ -6,7 +6,7 @@ import {
   deleteRoomType,
 } from "@/controllers/roomType.controller";
 
-import { roomTypeSchema } from "@/interfaces/types/roomType";
+import { roomTypeSchema } from "@/interfaces/types/roomType.types";
 import { withValidation } from "@/middlewares/validation.middleware";
 
 const roomType = Router();

@@ -19,7 +19,7 @@ import { Subscription, User, UserHotel } from "@prisma/client";
 import {
   ActiveSubscriptionResponse,
   UserHotelResponse,
-} from "@/interfaces/types/user";
+} from "@/interfaces/types/user.types";
 import { verifyGoogleToken } from "@/helpers/google.helper";
 
 /**
@@ -35,7 +35,6 @@ export const loginService = async (email: string, password: string) => {
     throw new UnauthorizedError("Invalid credentials");
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
-
   if (!isPasswordValid) throw new UnauthorizedError("Invalid credentials");
 
   const { accessToken, refreshToken } = generateTokens(user);

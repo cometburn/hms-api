@@ -3,7 +3,7 @@ import { CreateGoogleUserInput } from "@/interfaces";
 import {
   ActiveSubscriptionResponse,
   UserHotelResponse,
-} from "@/interfaces/types/user";
+} from "@/interfaces/types/user.types";
 import { User } from "@prisma/client";
 
 /**

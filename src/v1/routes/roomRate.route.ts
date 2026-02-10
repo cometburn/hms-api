@@ -7,7 +7,7 @@ import {
 } from "@/controllers/roomRate.controller";
 
 import { withValidation } from "@/middlewares/validation.middleware";
-import { roomRateSchema } from "@/interfaces/types/roomRate";
+import { roomRateSchema } from "@/interfaces/types/roomRate.types";
 
 const roomType = Router();
 
