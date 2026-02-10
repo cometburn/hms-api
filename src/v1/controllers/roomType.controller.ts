@@ -24,8 +24,6 @@ export const getAllRoomTypes = async (req: Request, res: Response) => {
   const safePage = !isNaN(page) ? page : 1;
   const safeLimit = !isNaN(limit) ? limit : 10;
 
-  console.log(safePage, safeLimit);
-
   const result = await getAllRoomTypesService({
     hotelId: user.default_hotel.id,
     page: safePage,
