@@ -1,3 +1,4 @@
+import { HttpError } from "@/helpers/error.helper";
 import { Prisma } from "@prisma/client";
 import { Request, Response, NextFunction } from "express";
 
@@ -23,6 +24,8 @@ export function errorHandler(
         // Record not found
         return res.status(404).json({ message: "Record not found" });
     }
+  } else if (err instanceof HttpError) {
+    return res.status(err.statusCode).json({ message: err.message });
   }
 
   console.error("Unhandled error:", err);
