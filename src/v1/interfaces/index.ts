@@ -1,5 +1,5 @@
 import { Subscription, User, UserHotel } from "@prisma/client";
-import { UserHotelResponse } from "./types/user";
+import { UserHotelResponse } from "./types/user.types";
 
 export interface SanitizedUser {
   id: number;
