@@ -39,7 +39,7 @@ export const protect = async (
       try {
         const refreshPayload = verifyRefreshToken(refreshToken);
         const user = await getUserByIdWithDefaultHotel(
-          Number(refreshPayload.sub)
+          Number(refreshPayload.id)
         );
         if (!user) throw new UnauthorizedError("Invalid refresh token");
 
@@ -58,7 +58,7 @@ export const protect = async (
     }
 
     // If access token is valid, get user
-    const user = await getUserByIdWithDefaultHotel(Number(payload.sub));
+    const user = await getUserByIdWithDefaultHotel(Number(payload.id));
     if (!user) throw new UnauthorizedError("Invalid user");
 
     req.user = user;
