@@ -20,7 +20,7 @@ export const roomPromoSchema = z
         "days_of_week must contain unique values between 0 and 6"
       ),
 
-    time_start: z
+    start_time: z
       .string()
       .regex(
         /^(?:[01]\d|2[0-3]):[0-5]\d$/,
@@ -28,7 +28,7 @@ export const roomPromoSchema = z
       )
       .optional(),
 
-    time_end: z
+    end_time: z
       .string()
       .regex(
         /^(?:[01]\d|2[0-3]):[0-5]\d$/,

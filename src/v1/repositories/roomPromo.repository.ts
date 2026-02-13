@@ -18,6 +18,9 @@ export const getRoomPromos = async (
     orderBy: { name: "asc" },
     skip,
     take: limit,
+    include: {
+      room_rate: true,
+    },
   });
 };
 

@@ -6,7 +6,7 @@ import {
   updateRoomTypeRepository,
   deleteRoomTypeRepository,
 } from "@/repositories/roomType.repository";
-import { GetAllRoomTypesParams } from "@/interfaces";
+import { RequestParams } from "@/interfaces";
 
 /**
  * Gets all room types
@@ -18,7 +18,7 @@ export const getAllRoomTypesService = async ({
   page,
   limit,
   search,
-}: GetAllRoomTypesParams) => {
+}: RequestParams) => {
   const skip = page > 0 && limit > 0 ? (page - 1) * limit : undefined;
   const take = limit > 0 ? limit : undefined;
 
@@ -60,11 +60,11 @@ export const createRoomTypeService = async (hotelId: number, data: any) => {
  * @param data
  * @returns updated room type
  */
-export async function updateRoomTypeService(
+export const updateRoomTypeService = async (
   hotelId: number,
   id: number,
   data: Partial<RoomType>
-) {
+) => {
   return await updateRoomTypeRepository(hotelId, id, data);
 }
 

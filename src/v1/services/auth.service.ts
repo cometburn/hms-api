@@ -64,7 +64,7 @@ export const refreshTokenService = async (
     const payload = verifyRefreshToken(refreshToken);
 
     const user = await getUserByIdAndRefreshToken(
-      Number(payload.sub),
+      Number(payload.id),
       refreshToken
     );
 

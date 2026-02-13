@@ -6,20 +6,14 @@ import {
   updateRoomPromoRepository,
   deleteRoomPromoRepository,
 } from "@/repositories/roomPromo.repository";
-
-interface GetAllRoomPromosParams {
-  hotelId: number;
-  page: number;
-  limit: number;
-  search: string;
-}
+import { RequestParams } from "@/interfaces"
 
 export const getAllRoomPromosService = async ({
   hotelId,
   page,
   limit,
   search,
-}: GetAllRoomPromosParams) => {
+}: RequestParams) => {
   const skip = (page - 1) * limit;
 
   const [data, total] = await Promise.all([
@@ -47,11 +41,11 @@ export const createRoomPromoService = async (hotelId: number, data: any) => {
   });
 };
 
-export async function updateRoomPromoService(
+export const updateRoomPromoService = async (
   hotelId: number,
   id: number,
   data: Partial<RoomPromo>
-) {
+) => {
   return await updateRoomPromoRepository(hotelId, id, data);
 }
 
