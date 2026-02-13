@@ -26,6 +26,7 @@ export interface SanitizedUser {
 }
 
 export interface TokenPayload {
+  id: number;
   sub: string;
   email: string;
 }
@@ -49,7 +50,7 @@ export interface CreateGoogleUserInput {
 /**
  * Start Room Types
  */
-export interface GetAllRoomTypesParams {
+export interface RequestParams {
   hotelId: number;
   page: number;
   limit: number;
