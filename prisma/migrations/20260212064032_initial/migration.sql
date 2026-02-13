@@ -4,6 +4,8 @@ CREATE TABLE "bookings" (
     "hotel_id" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
     "room_id" INTEGER NOT NULL,
+    "room_rate_id" INTEGER NOT NULL,
+    "room_type_id" INTEGER NOT NULL,
     "start_time" TIMESTAMP(3) NOT NULL,
     "end_time" TIMESTAMP(3) NOT NULL,
     "total_price" DOUBLE PRECISION NOT NULL,
@@ -12,8 +14,6 @@ CREATE TABLE "bookings" (
     "type" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "roomRatesId" INTEGER,
-    "roomTypesId" INTEGER,
 
     CONSTRAINT "bookings_pkey" PRIMARY KEY ("id")
 );
@@ -92,32 +92,34 @@ CREATE TABLE "products" (
 );
 
 -- CreateTable
-CREATE TABLE "room_rate_promos" (
+CREATE TABLE "room_promos" (
     "id" SERIAL NOT NULL,
+    "hotel_id" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
     "room_rate_id" INTEGER NOT NULL,
-    "date_start" TIMESTAMP(3) NOT NULL,
-    "date_end" TIMESTAMP(3) NOT NULL,
-    "day_of_week" INTEGER,
-    "time_start" TEXT,
-    "time_end" TEXT,
+    "date_start" TIMESTAMP(3),
+    "date_end" TIMESTAMP(3),
+    "days_of_week" INTEGER[],
+    "start_time" TEXT,
+    "end_time" TEXT,
     "price" DOUBLE PRECISION NOT NULL,
     "note" TEXT,
-    "included_persons" INTEGER NOT NULL,
-    "extra_person_rate" DOUBLE PRECISION NOT NULL,
+    "extra_person_rate" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "room_rate_promos_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "room_promos_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "room_rates" (
     "id" SERIAL NOT NULL,
+    "hotel_id" INTEGER NOT NULL,
     "room_type_id" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
     "rate_type" TEXT NOT NULL,
     "duration_minutes" INTEGER,
     "base_price" DOUBLE PRECISION NOT NULL,
-    "included_persons" INTEGER NOT NULL,
     "extra_person_rate" DOUBLE PRECISION NOT NULL,
     "is_dynamic" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -143,13 +145,13 @@ CREATE TABLE "rooms" (
     "id" SERIAL NOT NULL,
     "hotel_id" INTEGER NOT NULL,
     "room_type_id" INTEGER NOT NULL,
-    "room_rate_id" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "floor" TEXT,
-    "status" TEXT NOT NULL,
+    "operational_status" TEXT NOT NULL DEFAULT 'available',
     "notes" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "roomRateId" INTEGER,
 
     CONSTRAINT "rooms_pkey" PRIMARY KEY ("id")
 );
@@ -179,6 +181,7 @@ CREATE TABLE "user_hotels" (
     "id" SERIAL NOT NULL,
     "hotel_id" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
+    "owner_id" INTEGER,
     "is_default" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "user_hotels_pkey" PRIMARY KEY ("id")
@@ -203,7 +206,6 @@ CREATE TABLE "users" (
     "refresh_token" TEXT,
     "google_id" TEXT,
     "avatar" TEXT,
-    "parent_user_id" INTEGER,
     "user_type_id" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -212,10 +214,16 @@ CREATE TABLE "users" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "room_promos_hotel_id_room_rate_id_name_key" ON "room_promos"("hotel_id", "room_rate_id", "name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "room_types_hotel_id_name_key" ON "room_types"("hotel_id", "name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "unique_default_hotel_per_user" ON "user_hotels"("user_id", "is_default");
+CREATE UNIQUE INDEX "rooms_hotel_id_name_key" ON "rooms"("hotel_id", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "user_hotels_hotel_id_user_id_key" ON "user_hotels"("hotel_id", "user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
@@ -230,10 +238,10 @@ ALTER TABLE "bookings" ADD CONSTRAINT "bookings_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "bookings" ADD CONSTRAINT "bookings_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "bookings" ADD CONSTRAINT "bookings_roomRatesId_fkey" FOREIGN KEY ("roomRatesId") REFERENCES "room_rates"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "bookings" ADD CONSTRAINT "bookings_room_rate_id_fkey" FOREIGN KEY ("room_rate_id") REFERENCES "room_rates"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "bookings" ADD CONSTRAINT "bookings_roomTypesId_fkey" FOREIGN KEY ("roomTypesId") REFERENCES "room_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "bookings" ADD CONSTRAINT "bookings_room_type_id_fkey" FOREIGN KEY ("room_type_id") REFERENCES "room_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -254,7 +262,13 @@ ALTER TABLE "product_movements" ADD CONSTRAINT "product_movements_product_id_fke
 ALTER TABLE "products" ADD CONSTRAINT "products_hotel_id_fkey" FOREIGN KEY ("hotel_id") REFERENCES "hotels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "room_rate_promos" ADD CONSTRAINT "room_rate_promos_room_rate_id_fkey" FOREIGN KEY ("room_rate_id") REFERENCES "room_rates"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "room_promos" ADD CONSTRAINT "room_promos_hotel_id_fkey" FOREIGN KEY ("hotel_id") REFERENCES "hotels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "room_promos" ADD CONSTRAINT "room_promos_room_rate_id_fkey" FOREIGN KEY ("room_rate_id") REFERENCES "room_rates"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "room_rates" ADD CONSTRAINT "room_rates_hotel_id_fkey" FOREIGN KEY ("hotel_id") REFERENCES "hotels"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "room_rates" ADD CONSTRAINT "room_rates_room_type_id_fkey" FOREIGN KEY ("room_type_id") REFERENCES "room_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -269,7 +283,7 @@ ALTER TABLE "rooms" ADD CONSTRAINT "rooms_hotel_id_fkey" FOREIGN KEY ("hotel_id"
 ALTER TABLE "rooms" ADD CONSTRAINT "rooms_room_type_id_fkey" FOREIGN KEY ("room_type_id") REFERENCES "room_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "rooms" ADD CONSTRAINT "rooms_room_rate_id_fkey" FOREIGN KEY ("room_rate_id") REFERENCES "room_rates"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "rooms" ADD CONSTRAINT "rooms_roomRateId_fkey" FOREIGN KEY ("roomRateId") REFERENCES "room_rates"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -281,7 +295,7 @@ ALTER TABLE "user_hotels" ADD CONSTRAINT "user_hotels_hotel_id_fkey" FOREIGN KEY
 ALTER TABLE "user_hotels" ADD CONSTRAINT "user_hotels_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "users" ADD CONSTRAINT "users_parent_user_id_fkey" FOREIGN KEY ("parent_user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "user_hotels" ADD CONSTRAINT "user_hotels_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_user_type_id_fkey" FOREIGN KEY ("user_type_id") REFERENCES "user_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
