@@ -5,17 +5,18 @@ model RoomPromo {
   name                             String
   room_rate_id                     Int
   room_rate                        RoomRate   @relation(fields: [room_rate_id], references: [id])
-  date_start                       DateTime?
-  date_end                         DateTime?
+  start_date                       DateTime
+  end_date                         DateTime
   days_of_week                     Int[]     // 0-6 for Sunday-Saturday
-  time_start                       String?
-  time_end                         String?
+  start_time                       DateTime  @db.Time
+  end_time                         DateTime  @db.Time
   price                            Float
   note                             String?
-  extra_person_rate                Float
+  extra_person_rate                Float      @default(0)
 
   created_at                       DateTime   @default(now())
   updated_at                       DateTime   @updatedAt
 
+  @@unique([hotel_id, room_rate_id, name])
   @@map("room_promos")
 }

@@ -16,7 +16,6 @@ model RoomRate {
 
   room_promos                             RoomPromo[]
   bookings                                Booking[]
-  rooms                                   Room[]
 
   created_at                              DateTime @default(now())
   updated_at                              DateTime @updatedAt

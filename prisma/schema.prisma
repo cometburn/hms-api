@@ -1,27 +1,28 @@
-//🧩Don't Edit this file.✨Generated in Mon Oct 27 2025 21:01:11 GMT+0800 (Philippine Standard Time)✨
+//🧩Don't Edit this file.✨Generated in Fri Feb 13 2026 22:53:30 GMT+0800 (Philippine Standard Time)✨
 
 model Booking {
-  id             Int      @id @default(autoincrement())
-  hotel_id       Int
-  hotel          Hotel    @relation(fields: [hotel_id], references: [id])
-  user_id        Int
-  user           User     @relation(fields: [user_id], references: [id])
-  room_id        Int
-  room           Room     @relation(fields: [room_id], references: [id])
-  start_time     DateTime
-  end_time       DateTime
+  id           Int      @id @default(autoincrement())
+  hotel_id     Int
+  hotel        Hotel    @relation(fields: [hotel_id], references: [id])
+  user_id      Int
+  user         User     @relation(fields: [user_id], references: [id])
+  room_id      Int
+  room         Room     @relation(fields: [room_id], references: [id])
+  room_rate_id Int
+  room_rate    RoomRate @relation(fields: [room_rate_id], references: [id])
+
+  start_date     DateTime @default(now())
+  end_date       DateTime @default(now())
+  start_time     DateTime @db.Time
+  end_time       DateTime @db.Time
   total_price    Float
   status         String // pending, confirmed, cancelled, completed
   payment_status String // unpaid, paid, refunded
-  type           String
+  payment_type   String // cash, card, online,
   orders         Order[]
 
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  RoomRate   RoomRate? @relation(fields: [roomRateId], references: [id])
-  roomRateId Int?
-  RoomType   RoomType? @relation(fields: [roomTypeId], references: [id])
-  roomTypeId Int?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("bookings")
 }
@@ -117,24 +118,25 @@ model Product {
 }
 
 model RoomPromo {
-  id                Int       @id @default(autoincrement())
+  id                Int      @id @default(autoincrement())
   hotel_id          Int
-  hotel             Hotel     @relation(fields: [hotel_id], references: [id])
+  hotel             Hotel    @relation(fields: [hotel_id], references: [id])
   name              String
   room_rate_id      Int
-  room_rate         RoomRate  @relation(fields: [room_rate_id], references: [id])
-  date_start        DateTime?
-  date_end          DateTime?
+  room_rate         RoomRate @relation(fields: [room_rate_id], references: [id])
+  start_date        DateTime
+  end_date          DateTime
   days_of_week      Int[] // 0-6 for Sunday-Saturday
-  time_start        String?
-  time_end          String?
+  start_time        DateTime @db.Time
+  end_time          DateTime @db.Time
   price             Float
   note              String?
-  extra_person_rate Float
+  extra_person_rate Float    @default(0)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@unique([hotel_id, room_rate_id, name])
   @@map("room_promos")
 }
 
@@ -155,7 +157,6 @@ model RoomRate {
 
   room_promos RoomPromo[]
   bookings    Booking[]
-  rooms       Room[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -164,14 +165,14 @@ model RoomRate {
 }
 
 model RoomType {
-  id          Int        @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   hotel_id    Int
-  hotel       Hotel      @relation(fields: [hotel_id], references: [id])
+  hotel       Hotel   @relation(fields: [hotel_id], references: [id])
   name        String
   description String?
-  bookings    Booking[]
-  room_rates  RoomRate[]
-  rooms       Room[]
+
+  room_rates RoomRate[]
+  rooms      Room[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -181,22 +182,22 @@ model RoomType {
 }
 
 model Room {
-  id           Int       @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   hotel_id     Int
-  hotel        Hotel     @relation(fields: [hotel_id], references: [id])
+  hotel        Hotel    @relation(fields: [hotel_id], references: [id])
   room_type_id Int
-  roomType     RoomType  @relation(fields: [room_type_id], references: [id])
-  room_rate_id Int
-  room_rate    RoomRate  @relation(fields: [room_rate_id], references: [id])
-  name         String
-  floor        String?
-  status       String // occupied, vacant, on repair, reserved
-  notes        String?
-  bookings     Booking[]
+  room_type    RoomType @relation(fields: [room_type_id], references: [id])
+
+  name               String
+  floor              String?
+  operational_status String    @default("available")
+  notes              String?
+  bookings           Booking[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@unique([hotel_id, name])
   @@map("rooms")
 }
 
@@ -235,7 +236,7 @@ model UserHotel {
 
   is_default Boolean @default(false)
 
-  @@unique([user_id, hotel_id])
+  @@unique([hotel_id, user_id])
   @@map("user_hotels")
 }
 

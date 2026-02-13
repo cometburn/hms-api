@@ -6,13 +6,18 @@ model Booking {
   user_id                         Int
   user                            User     @relation(fields: [user_id], references: [id])
   room_id                         Int
-  room                            Room    @relation(fields: [room_id], references: [id])
-  start_time                      DateTime
-  end_time                        DateTime
+  room                            Room     @relation(fields: [room_id], references: [id])
+  room_rate_id                    Int
+  room_rate                       RoomRate @relation(fields: [room_rate_id], references: [id])
+
+  start_date                      DateTime @default(now())
+  end_date                        DateTime @default(now())
+  start_time                      DateTime @db.Time
+  end_time                        DateTime @db.Time
   total_price                     Float
   status                          String // pending, confirmed, cancelled, completed
   payment_status                  String // unpaid, paid, refunded
-  type                            String
+  payment_type                    String // cash, card, online,
   orders                          Order[]
 
   created_at                      DateTime @default(now())

@@ -12,6 +12,6 @@ model UserHotel {
 
   is_default            Boolean   @default(false) 
 
-  @@unique([user_id, hotel_id])
+  @@unique([hotel_id, user_id])
   @@map("user_hotels")
 }

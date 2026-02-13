@@ -5,7 +5,7 @@ model RoomType {
   hotel                                 Hotel    @relation(fields: [hotel_id], references: [id])
   name                                  String
   description                           String?
-  bookings                              Booking[]
+
   room_rates                            RoomRate[]
   rooms                                 Room[]
 
