@@ -6,3 +6,4 @@ export const REFRESH_TOKEN_EXPIRATION = "7d";
 export const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
 export const ROOM_STATUS = ["available", "occupied", "maintenance"];
+export const OPERATIONAL_STATUS = ["available", "maintenance", "out of service"];
