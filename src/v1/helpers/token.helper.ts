@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
 import {
-  JWT_SECRET,
-  JWT_REFRESH_SECRET,
   ACCESS_TOKEN_EXPIRATION,
   REFRESH_TOKEN_EXPIRATION,
   COOKIE_MAX_AGE,
@@ -17,9 +15,15 @@ import { TokenPayload } from "@/interfaces";
  * @returns access token string
  */
 export const generateAccessToken = (id: number, email: string): string => {
-  return jwt.sign({ sub: id, email: email }, JWT_SECRET, {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('jwt secret is not defined in environment variables');
+  }
+
+  return jwt.sign({ id: id, email: email }, jwtSecret, {
     expiresIn: ACCESS_TOKEN_EXPIRATION,
   });
+
 };
 
 /**
@@ -28,7 +32,13 @@ export const generateAccessToken = (id: number, email: string): string => {
  * @returns refresh token string
  */
 export const generateRefreshToken = (user: User): string => {
-  return jwt.sign({ sub: user.id, email: user.email }, JWT_REFRESH_SECRET, {
+  const jwtRefreshSecret = process.env.JWT_SECRET;
+
+  if (!jwtRefreshSecret) {
+    throw new Error('jwt refresh secret is not defined in environment variables');
+  }
+
+  return jwt.sign({ id: user.id, email: user.email }, jwtRefreshSecret, {
     expiresIn: REFRESH_TOKEN_EXPIRATION,
   });
 };
@@ -74,7 +84,12 @@ export const setRefreshTokenCookie = (
  */
 export const verifyAccessToken = (accessToken: string): TokenPayload => {
   try {
-    const payload = jwt.verify(accessToken, JWT_SECRET) as TokenPayload;
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('jwt secret is not defined in environment variables');
+    }
+
+    const payload = jwt.verify(accessToken, jwtSecret) as TokenPayload;
     return payload;
   } catch (error) {
     throw new UnauthorizedError("Invalid or expired access token");
@@ -88,10 +103,13 @@ export const verifyAccessToken = (accessToken: string): TokenPayload => {
  */
 export const verifyRefreshToken = (refreshToken: string): TokenPayload => {
   try {
-    const payload = jwt.verify(
-      refreshToken,
-      JWT_REFRESH_SECRET
-    ) as TokenPayload;
+    const jwtRefreshSecret = process.env.JWT_SECRET;
+
+    if (!jwtRefreshSecret) {
+      throw new Error('jwt refresh secret is not defined in environment variables');
+    }
+
+    const payload = jwt.verify(refreshToken, jwtRefreshSecret) as TokenPayload;
     return payload;
   } catch (error) {
     throw new UnauthorizedError("Invalid or expired refresh token");
