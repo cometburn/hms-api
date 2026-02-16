@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "TZ=Asia/Ho_Chi_Minh npx tsx watch src/index.ts",
+    "dev": "TZ=Asia/Manila npx tsx watch src/index.ts",
     "build": "tsc && tsc-alias",
-    "start": "TZ=Asia/Ho_Chi_Minh node dist/index.js",
+    "start": "TZ=Asia/Manila node dist/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:reset": "prisma migrate reset"
