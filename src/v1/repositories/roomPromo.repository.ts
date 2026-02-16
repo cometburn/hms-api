@@ -36,7 +36,7 @@ export const countRoomPromos = async (hotelId: number, search: string) => {
   });
 };
 
-export const createRoomPromoRepository = async (data: any) => {
+export const createRoomPromoRepository = async (data: RoomPromo) => {
   return await prisma.roomPromo.create({ data });
 };
 

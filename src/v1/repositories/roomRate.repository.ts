@@ -1,6 +1,14 @@
 import prisma from "@/helpers/prisma.helper";
 import { RoomRate, RoomType } from "@prisma/client";
 
+/**
+ * Gets all room rates
+ * @param hotelId
+ * @param search
+ * @param skip
+ * @param limit
+ * @returns
+ */
 export const getRoomRates = async (
   hotelId: number,
   search: string,
@@ -21,6 +29,12 @@ export const getRoomRates = async (
   });
 };
 
+/**
+ * Counts room rates
+ * @param hotelId
+ * @param search
+ * @returns
+ */
 export const countRoomRates = async (hotelId: number, search: string) => {
   return await prisma.roomRate.count({
     where: {
@@ -37,6 +51,13 @@ export const createRoomRateRepository = async (data: any) => {
   return await prisma.roomRate.create({ data });
 };
 
+/**
+ * Updates room rate
+ * @param hotelId
+ * @param id
+ * @param data
+ * @returns
+ */
 export async function updateRoomRateRepository(
   hotelId: number,
   id: number,
@@ -59,6 +80,24 @@ export const deleteRoomRateRepository = async (hotelId: number, id: number) => {
     where: {
       id,
       hotel_id: hotelId,
+    },
+  });
+};
+
+/**
+ * Gets room rates by room type id
+ * @param hotelId
+ * @param roomTypeId
+ * @returns
+ */
+export const getRoomRatesByRoomTypeIdRepository = async (
+  hotelId: number,
+  roomTypeId: number
+) => {
+  return await prisma.roomRate.findMany({
+    where: {
+      hotel_id: hotelId,
+      room_type_id: roomTypeId,
     },
   });
 };
