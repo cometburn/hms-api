@@ -5,20 +5,18 @@ export const registerSocketHandlers = (io: Server) => {
         const userId = socket.data.userId;
         const userEmail = socket.data.userEmail;
 
-        console.log(`🔌 User connected:`, { userId, email: userEmail, socketId: socket.id, timestamp: new Date().toISOString() });
-
         /**
          * Join a hotel room id (with authorization check)
          */
         socket.on('join_hotel', async (hotelId: string, callback?: (response: any) => void) => {
             try {
                 // Join the room
-                socket.join(`hotel_${hotelId}`);
+                socket.join(hotelId);
 
-                console.log(`🏨 User ${userId} joined hotel ${hotelId}`);
+                console.log(`🏨 User ${userId} joined ${hotelId}`);
 
                 // Notify others in the room
-                socket.to(`hotel_${hotelId}`).emit('user_joined', {
+                socket.to(hotelId).emit('user_joined', {
                     userId,
                     socketId: socket.id,
                     timestamp: new Date()

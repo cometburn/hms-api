@@ -22,7 +22,7 @@ export const socketService: SocketService = {
       console.error('Socket.IO not initialized');
       return;
     }
-    this.io.to(`hotel_${hotelId}`).emit(event, data);
+    this.io.to(hotelId).emit(event, data);
   },
 
   emitToUser(userId: string, event: string, data: any): void {
