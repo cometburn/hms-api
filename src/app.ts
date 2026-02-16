@@ -27,13 +27,13 @@ const app = express();
 // Create HTTP server
 export const httpServer = createServer(app);
 
+// Configure middleware (CORS, body parsing, etc.)
+configureMiddleware(app);
+
 // Initialize Socket.IO with CORS
 export const io = new Server(httpServer, {
   cors: socketCorsOptions,
 });
-
-// Configure middleware (CORS, body parsing, etc.)
-configureMiddleware(app);
 
 // Configure Socket.IO authentication
 configureSocket(io);
