@@ -8,6 +8,14 @@ import {
 } from "@/repositories/roomPromo.repository";
 import { RequestParams } from "@/interfaces"
 
+/**
+ * Get all room promos service
+ * @param hotelId
+ * @param page
+ * @param limit
+ * @param search
+ * @returns all room promos
+ */
 export const getAllRoomPromosService = async ({
   hotelId,
   page,
@@ -34,6 +42,12 @@ export const getAllRoomPromosService = async ({
   };
 };
 
+/**
+ * Create room promo service
+ * @param hotelId
+ * @param data
+ * @returns created room promo
+ */
 export const createRoomPromoService = async (hotelId: number, data: any) => {
   return await createRoomPromoRepository({
     ...data,
@@ -41,6 +55,13 @@ export const createRoomPromoService = async (hotelId: number, data: any) => {
   });
 };
 
+/**
+ * Update room promo service
+ * @param hotelId
+ * @param id
+ * @param data
+ * @returns updated room promo
+ */
 export const updateRoomPromoService = async (
   hotelId: number,
   id: number,

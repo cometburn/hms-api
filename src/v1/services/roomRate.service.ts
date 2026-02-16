@@ -5,6 +5,7 @@ import {
   createRoomRateRepository,
   updateRoomRateRepository,
   deleteRoomRateRepository,
+  getRoomRatesByRoomTypeIdRepository
 } from "@/repositories/roomRate.repository";
 
 import { RequestParams } from "@/interfaces";
@@ -59,3 +60,10 @@ export const updateRoomRateService = async (
 export const deleteRoomRateService = async (hotelId: number, id: number) => {
   return await deleteRoomRateRepository(hotelId, id);
 };
+
+export const getRoomRatesByRoomTypeIdService = async (
+  hotelId: number,
+  roomTypeId: number
+) => {
+  return await getRoomRatesByRoomTypeIdRepository(hotelId, roomTypeId);
+}
