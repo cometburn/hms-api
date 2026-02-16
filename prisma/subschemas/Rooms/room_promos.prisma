@@ -1,18 +1,20 @@
 model RoomPromo {
   id                               Int        @id @default(autoincrement())
   hotel_id                         Int
-  hotel                            Hotel    @relation(fields: [hotel_id], references: [id])
+  hotel                            Hotel      @relation(fields: [hotel_id], references: [id])
   name                             String
   room_rate_id                     Int
   room_rate                        RoomRate   @relation(fields: [room_rate_id], references: [id])
-  start_date                       DateTime
-  end_date                         DateTime
+
+  start_datetime                  DateTime    @default(now())
+  end_datetime                    DateTime    @default(now())
+
   days_of_week                     Int[]     // 0-6 for Sunday-Saturday
-  start_time                       DateTime  @db.Time
-  end_time                         DateTime  @db.Time
+
   price                            Float
   note                             String?
   extra_person_rate                Float      @default(0)
+  active                           Boolean    @default(true)
 
   created_at                       DateTime   @default(now())
   updated_at                       DateTime   @updatedAt

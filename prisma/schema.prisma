@@ -1,4 +1,4 @@
-//🧩Don't Edit this file.✨Generated in Fri Feb 13 2026 22:53:30 GMT+0800 (Philippine Standard Time)✨
+//🧩Don't Edit this file.✨Generated in Mon Feb 16 2026 20:21:31 GMT+0800 (Philippine Standard Time)✨
 
 model Booking {
   id           Int      @id @default(autoincrement())
@@ -11,19 +11,23 @@ model Booking {
   room_rate_id Int
   room_rate    RoomRate @relation(fields: [room_rate_id], references: [id])
 
-  start_date     DateTime @default(now())
-  end_date       DateTime @default(now())
-  start_time     DateTime @db.Time
-  end_time       DateTime @db.Time
+  start_datetime DateTime @default(now())
+  end_datetime   DateTime @default(now())
+
+  extra_person   Int     @default(0)
   total_price    Float
   status         String // pending, confirmed, cancelled, completed
-  payment_status String // unpaid, paid, refunded
-  payment_type   String // cash, card, online,
+  payment_status String? // unpaid, paid, refunded
+  payment_type   String? // cash, card, online,
+  note           String?
   orders         Order[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@index([end_datetime])
+  @@index([hotel_id, status])
+  @@index([status, end_datetime])
   @@map("bookings")
 }
 
@@ -118,20 +122,22 @@ model Product {
 }
 
 model RoomPromo {
-  id                Int      @id @default(autoincrement())
-  hotel_id          Int
-  hotel             Hotel    @relation(fields: [hotel_id], references: [id])
-  name              String
-  room_rate_id      Int
-  room_rate         RoomRate @relation(fields: [room_rate_id], references: [id])
-  start_date        DateTime
-  end_date          DateTime
-  days_of_week      Int[] // 0-6 for Sunday-Saturday
-  start_time        DateTime @db.Time
-  end_time          DateTime @db.Time
+  id           Int      @id @default(autoincrement())
+  hotel_id     Int
+  hotel        Hotel    @relation(fields: [hotel_id], references: [id])
+  name         String
+  room_rate_id Int
+  room_rate    RoomRate @relation(fields: [room_rate_id], references: [id])
+
+  start_datetime DateTime @default(now())
+  end_datetime   DateTime @default(now())
+
+  days_of_week Int[] // 0-6 for Sunday-Saturday
+
   price             Float
   note              String?
-  extra_person_rate Float    @default(0)
+  extra_person_rate Float   @default(0)
+  active            Boolean @default(true)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

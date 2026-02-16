@@ -10,18 +10,22 @@ model Booking {
   room_rate_id                    Int
   room_rate                       RoomRate @relation(fields: [room_rate_id], references: [id])
 
-  start_date                      DateTime @default(now())
-  end_date                        DateTime @default(now())
-  start_time                      DateTime @db.Time
-  end_time                        DateTime @db.Time
+  start_datetime                  DateTime @default(now())
+  end_datetime                    DateTime @default(now())
+
+  extra_person                    Int @default(0)
   total_price                     Float
   status                          String // pending, confirmed, cancelled, completed
-  payment_status                  String // unpaid, paid, refunded
-  payment_type                    String // cash, card, online,
+  payment_status                  String? // unpaid, paid, refunded
+  payment_type                    String? // cash, card, online,
+  note                            String?
   orders                          Order[]
 
   created_at                      DateTime @default(now())
   updated_at                      DateTime @updatedAt
 
+  @@index([end_datetime])
+  @@index([hotel_id, status])
+  @@index([status, end_datetime])
   @@map("bookings")
 } 
