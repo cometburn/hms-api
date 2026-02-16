@@ -9,11 +9,11 @@ import {
 import { roomTypeSchema } from "@/interfaces/types/roomType.types";
 import { withValidation } from "@/middlewares/validation.middleware";
 
-const roomType = Router();
+const roomTypeRoute = Router();
 
-roomType.get("/", getAllRoomTypes);
-roomType.post("/", withValidation(roomTypeSchema, createRoomType));
-roomType.put("/:id", withValidation(roomTypeSchema.partial(), updateRoomType));
-roomType.delete("/:id", deleteRoomType);
+roomTypeRoute.get("/", getAllRoomTypes);
+roomTypeRoute.post("/", withValidation(roomTypeSchema, createRoomType));
+roomTypeRoute.put("/:id", withValidation(roomTypeSchema.partial(), updateRoomType));
+roomTypeRoute.delete("/:id", deleteRoomType);
 
-export default roomType;
+export default roomTypeRoute;

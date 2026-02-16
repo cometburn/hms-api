@@ -9,14 +9,14 @@ import {
 import { withValidation } from "@/middlewares/validation.middleware";
 import { roomPromoSchema } from "@/interfaces/types/roomPromo.types";
 
-const roomType = Router();
+const roomPromoRoute = Router();
 
-roomType.get("/", getAllRoomPromos);
-roomType.post("/", withValidation(roomPromoSchema, createRoomPromo));
-roomType.put(
+roomPromoRoute.get("/", getAllRoomPromos);
+roomPromoRoute.post("/", withValidation(roomPromoSchema, createRoomPromo));
+roomPromoRoute.put(
   "/:id",
   withValidation(roomPromoSchema.partial(), updateRoomPromo)
 );
-roomType.delete("/:id", deleteRoomPromo);
+roomPromoRoute.delete("/:id", deleteRoomPromo);
 
-export default roomType;
+export default roomPromoRoute;

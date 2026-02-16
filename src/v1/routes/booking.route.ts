@@ -3,8 +3,8 @@ import { createBooking } from "@/controllers/booking.controller";
 import { withValidation } from "@/middlewares/validation.middleware";
 import { bookingSchema } from "@/interfaces/types/booking.types";
 
-const router = express.Router();
+const bookingRoute = express.Router();
 
-router.post("/", withValidation(bookingSchema, createBooking));
+bookingRoute.post("/", withValidation(bookingSchema, createBooking));
 
-export default router;
+export default bookingRoute;
