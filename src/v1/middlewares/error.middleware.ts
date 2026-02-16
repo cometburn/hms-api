@@ -57,8 +57,19 @@ export function errorHandler(
         });
 
       case "P2003":
-        // Foreign key constraint failed
         const foreignKeyField = (err.meta?.field_name as string) || "field";
+
+        if (err.meta?.modelName) {
+          return res.status(400).json({
+            errors: [
+              {
+                code: "FOREIGN_KEY_CONSTRAINT",
+                path: [foreignKeyField],
+                message: `${err.meta?.constraint} id not found`
+              }
+            ]
+          });
+        }
 
         return res.status(409).json({
           errors: [
