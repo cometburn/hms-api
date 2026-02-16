@@ -4,6 +4,7 @@ import {
   getAllRoomRatesService,
   updateRoomRateService,
   deleteRoomRateService,
+  getRoomRatesByRoomTypeIdService
 } from "@/services/roomRate.service";
 import { NotFoundError } from "@/helpers/error.helper";
 
@@ -56,7 +57,7 @@ export const createRoomRate = async (
 };
 
 /**
- *
+ * Updates room rate
  * @param req
  * @param res
  * @returns
@@ -114,3 +115,27 @@ export const deleteRoomRate = async (
     next(err);
   }
 };
+
+export const getRoomRatesByRoomTypeId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user!;
+    const { roomTypeId } = req.params;
+
+    if (!user.default_hotel) {
+      throw new NotFoundError("User hotel missing");
+    }
+
+    const result = await getRoomRatesByRoomTypeIdService(
+      user.default_hotel.id,
+      Number(roomTypeId)
+    );
+
+    return res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
