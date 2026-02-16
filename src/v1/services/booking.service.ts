@@ -34,11 +34,8 @@ export const getAllBookingsService = async ({
     };
 };
 
-export const createBookingService = async (hotelId: number, data: any) => {
-    return await createBookingRepository({
-        ...data,
-        hotel_id: hotelId,
-    });
+export const createBookingService = async (data: Booking) => {
+    return await createBookingRepository(data);
 };
 
 export const updateBookingService = async (

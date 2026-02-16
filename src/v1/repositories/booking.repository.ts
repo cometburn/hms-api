@@ -33,6 +33,7 @@ export const countBookings = async (hotelId: number, search: string) => {
 };
 
 export const createBookingRepository = async (data: any) => {
+    console.log(data);
     return await prisma.booking.create({ data });
 };
 
