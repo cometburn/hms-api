@@ -9,8 +9,8 @@ export const roomPromoSchema = z
       .int()
       .positive("room_rate_id must be a positive integer"),
 
-    date_start: z.coerce.date().optional(),
-    date_end: z.coerce.date().optional(),
+    start_datetime: z.coerce.date(),
+    end_datetime: z.coerce.date(),
 
     days_of_week: z
       .array(z.number().int().min(0).max(6))
@@ -19,22 +19,6 @@ export const roomPromoSchema = z
         (arr) => !arr || new Set(arr).size === arr.length,
         "days_of_week must contain unique values between 0 and 6"
       ),
-
-    start_time: z
-      .string()
-      .regex(
-        /^(?:[01]\d|2[0-3]):[0-5]\d$/,
-        "time_start must be in HH:MM 24-hour format"
-      )
-      .optional(),
-
-    end_time: z
-      .string()
-      .regex(
-        /^(?:[01]\d|2[0-3]):[0-5]\d$/,
-        "time_end must be in HH:MM 24-hour format"
-      )
-      .optional(),
 
     price: z.coerce.number().nonnegative("price must be >= 0"),
     note: z.string().optional().nullable(),
@@ -46,8 +30,8 @@ export const roomPromoSchema = z
   // ✅ new cross-field validation method
   .refine(
     (data) => {
-      if (data.date_start && data.date_end) {
-        return new Date(data.date_end) >= new Date(data.date_start);
+      if (data.start_datetime && data.end_datetime) {
+        return new Date(data.end_datetime) >= new Date(data.start_datetime);
       }
       return true;
     },
