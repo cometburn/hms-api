@@ -47,16 +47,9 @@ export interface CreateGoogleUserInput {
   avatar: string;
 }
 
-/**
- * Start Room Types
- */
 export interface RequestParams {
   hotelId: number;
   page: number;
   limit: number;
   search: string;
 }
-
-/**
- * End Room Types
- */

@@ -1,12 +1,16 @@
-
 model ProductMovement {
   id                            Int      @id @default(autoincrement())
+
   user_id                       Int
   user                          User     @relation(fields: [user_id], references: [id])
+
   product_id                    Int
-  product                       Product @relation(fields: [product_id], references: [id])
-  type                          String
+  product                       Product  @relation(fields: [product_id], references: [id])
+
+  type                          String  @default("in")
   quantity                      Int
+  unit_cost                     Float
+
   source                        String?
   note                          String?
 
@@ -14,4 +18,4 @@ model ProductMovement {
   updated_at                    DateTime @updatedAt
 
   @@map("product_movements")
-} 
+}

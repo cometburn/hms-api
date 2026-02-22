@@ -1,0 +1,12 @@
+model Inventory {
+  id             Int     @id @default(autoincrement())
+  product_id     Int     @unique
+  product        Product @relation(fields: [product_id], references: [id])
+
+  quantity       Int
+  reserved_qty   Int     @default(0)
+
+  updated_at     DateTime @updatedAt
+
+  @@map("inventory")
+}

@@ -76,6 +76,8 @@ export const updateRoomRate = async (
       throw new NotFoundError("User hotel missing");
     }
 
+    console.log('data', data)
+
     const result = await updateRoomRateService(
       user.default_hotel.id,
       Number(id),
@@ -116,6 +118,11 @@ export const deleteRoomRate = async (
   }
 };
 
+/**
+ * Gets room rates by room type id
+ * @param req
+ * @param res
+ */
 export const getRoomRatesByRoomTypeId = async (
   req: Request,
   res: Response,

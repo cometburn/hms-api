@@ -1,16 +1,23 @@
-
 model Order {
-  id                                Int          @id @default(autoincrement())
-  booking_id                        Int
-  booking                           Booking     @relation(fields: [booking_id], references: [id])
-  order_time                        DateTime
-  total_price                       Float
-  status                            String
-  notes                             String?
-  order_items                       OrderItem[]
+  id            Int          @id @default(autoincrement())
 
-  created_at                        DateTime @default(now())
-  updated_at                        DateTime @updatedAt
+  hotel_id      Int
+  hotel         Hotel        @relation(fields: [hotel_id], references: [id])
+
+  booking_id    Int?
+  booking       Booking?     @relation(fields: [booking_id], references: [id])
+
+  order_time    DateTime     @default(now())
+
+  status        String?      @default("pending")
+  total_price   Decimal      @db.Decimal(10, 2)
+
+  notes         String?
+
+  order_items   OrderItem[]
+
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
 
   @@map("orders")
-} 
+}

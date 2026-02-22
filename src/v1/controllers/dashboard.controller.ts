@@ -2,6 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import { getDashboardRoomsService } from "@/services/dashboard.service";
 import { NotFoundError } from "@/helpers/error.helper";
 
+/**
+ * Get Dashboard Rooms
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
 export const getDashboardRooms = async (
     req: Request,
     res: Response,

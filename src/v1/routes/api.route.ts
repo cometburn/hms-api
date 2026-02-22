@@ -9,6 +9,8 @@ import roomPromoRoute from "@/routes/roomPromo.route";
 import roomRoute from "@/routes/room.route";
 import bookingRoute from "@/routes/booking.route";
 import dashboardRoute from "@/routes/dashboard.route";
+import productRoute from "@/routes/product.route";
+import bookingAddonRoute from "@/routes/bookingAddon.route";
 
 import { protect } from "@/middlewares/auth.middleware";
 
@@ -20,6 +22,8 @@ apiRoute.use(`/${routeVersion}/auth`, authRoute);
 apiRoute.use(`/${routeVersion}/hotels`, protect, hotelRoute);
 apiRoute.use(`/${routeVersion}/rooms`, protect, roomRoute);
 apiRoute.use(`/${routeVersion}/bookings`, protect, bookingRoute);
+apiRoute.use(`/${routeVersion}/booking-addons`, protect, bookingAddonRoute);
+apiRoute.use(`/${routeVersion}/products`, protect, productRoute);
 apiRoute.use(`/${routeVersion}/dashboard`, protect, dashboardRoute);
 apiRoute.use(`/${routeVersion}/room-types`, protect, roomTypeRoute);
 apiRoute.use(`/${routeVersion}/room-rates`, protect, roomRateRoute);

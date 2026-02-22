@@ -1,4 +1,27 @@
-//🧩Don't Edit this file.✨Generated in Mon Feb 16 2026 20:21:31 GMT+0800 (Philippine Standard Time)✨
+//🧩Don't Edit this file.✨Generated in Sat Feb 21 2026 16:08:32 GMT+0800 (Philippine Standard Time)✨
+model BookingAddon {
+  id         Int     @id @default(autoincrement())
+  booking_id Int
+  booking    Booking @relation(fields: [booking_id], references: [id])
+
+  room_id Int
+  room    Room @relation(fields: [room_id], references: [id])
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+
+  product_id Int
+  product    Product @relation(fields: [product_id], references: [id])
+
+  quantity    Int   @default(1)
+  price       Float
+  total_price Float
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("booking_addons")
+}
 
 model Booking {
   id           Int      @id @default(autoincrement())
@@ -14,13 +37,14 @@ model Booking {
   start_datetime DateTime @default(now())
   end_datetime   DateTime @default(now())
 
-  extra_person   Int     @default(0)
+  extra_person   Int            @default(0)
   total_price    Float
   status         String // pending, confirmed, cancelled, completed
   payment_status String? // unpaid, paid, refunded
   payment_type   String? // cash, card, online,
   note           String?
   orders         Order[]
+  booking_addons BookingAddon[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -44,22 +68,41 @@ model Hotel {
 
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
+  Order      Order[]
   RoomPromo  RoomPromo[]
   UserHotel  UserHotel[]
 
   @@map("hotels")
 }
 
+model Inventory {
+  id         Int     @id @default(autoincrement())
+  product_id Int     @unique
+  product    Product @relation(fields: [product_id], references: [id])
+
+  quantity     Int
+  reserved_qty Int @default(0)
+
+  updated_at DateTime @updatedAt
+
+  @@map("inventory")
+}
+
 model OrderItem {
-  id          Int     @id @default(autoincrement())
-  order_id    Int
-  order       Order   @relation(fields: [order_id], references: [id])
-  product_id  Int
-  product     Product @relation(fields: [product_id], references: [id])
-  quantity    Int
-  unit_price  Float
-  total_price Float
-  notes       String?
+  id Int @id @default(autoincrement())
+
+  order_id Int
+  order    Order @relation(fields: [order_id], references: [id])
+
+  product_id Int
+  product    Product @relation(fields: [product_id], references: [id])
+
+  quantity Int
+
+  unit_price  Decimal @db.Decimal(10, 2)
+  total_price Decimal @db.Decimal(10, 2)
+
+  notes String?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -68,13 +111,21 @@ model OrderItem {
 }
 
 model Order {
-  id          Int         @id @default(autoincrement())
-  booking_id  Int
-  booking     Booking     @relation(fields: [booking_id], references: [id])
-  order_time  DateTime
-  total_price Float
-  status      String
-  notes       String?
+  id Int @id @default(autoincrement())
+
+  hotel_id Int
+  hotel    Hotel @relation(fields: [hotel_id], references: [id])
+
+  booking_id Int?
+  booking    Booking? @relation(fields: [booking_id], references: [id])
+
+  order_time DateTime @default(now())
+
+  status      String? @default("pending")
+  total_price Decimal @db.Decimal(10, 2)
+
+  notes String?
+
   order_items OrderItem[]
 
   created_at DateTime @default(now())
@@ -84,15 +135,20 @@ model Order {
 }
 
 model ProductMovement {
-  id         Int     @id @default(autoincrement())
-  user_id    Int
-  user       User    @relation(fields: [user_id], references: [id])
+  id Int @id @default(autoincrement())
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+
   product_id Int
   product    Product @relation(fields: [product_id], references: [id])
-  type       String
-  quantity   Int
-  source     String?
-  note       String?
+
+  type      String @default("in")
+  quantity  Int
+  unit_cost Float
+
+  source String?
+  note   String?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -101,22 +157,26 @@ model ProductMovement {
 }
 
 model Product {
-  id                Int               @id @default(autoincrement())
-  hotel_id          Int
-  hotel             Hotel             @relation(fields: [hotel_id], references: [id])
-  name              String
-  sku               String?
-  category          String?
-  price             Float
-  track_stock       Boolean           @default(true)
-  stock_qty         Int
-  unit              String?
-  is_active         Boolean           @default(true)
+  id       Int   @id @default(autoincrement())
+  hotel_id Int
+  hotel    Hotel @relation(fields: [hotel_id], references: [id])
+
+  name     String
+  sku      String?
+  category String?
+  price    Float
+
+  track_stock Boolean @default(true)
+  unit        String?
+  is_active   Boolean @default(true)
+
+  inventory         Inventory?
   product_movements ProductMovement[]
   orderItems        OrderItem[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt
+  BookingAddon BookingAddon[]
 
   @@map("products")
 }
@@ -158,6 +218,7 @@ model RoomRate {
   rate_type         String // hourly, nightly, block
   duration_minutes  Int?
   base_price        Float
+  overstay_rate     Float   @default(0)
   extra_person_rate Float
   is_dynamic        Boolean @default(false)
 
@@ -200,8 +261,9 @@ model Room {
   notes              String?
   bookings           Booking[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt
+  BookingAddon BookingAddon[]
 
   @@unique([hotel_id, name])
   @@map("rooms")
@@ -274,8 +336,9 @@ model User {
   hotels            UserHotel[]
   owned_hotels      UserHotel[]       @relation("OwnerUser")
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt
+  BookingAddon BookingAddon[]
 
   @@map("users")
 }

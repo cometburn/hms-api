@@ -1,0 +1,23 @@
+model BookingAddon {
+  id                               Int        @id @default(autoincrement())
+  booking_id                       Int
+  booking                          Booking    @relation(fields: [booking_id], references: [id])
+
+  room_id                          Int
+  room                             Room       @relation(fields: [room_id], references: [id])
+
+  user_id                          Int
+  user                             User       @relation(fields: [user_id], references: [id])
+
+  product_id                       Int
+  product                          Product    @relation(fields: [product_id], references: [id])
+
+  quantity                         Int        @default(1)
+  price                            Float 
+  total_price                      Float      
+
+  created_at                       DateTime   @default(now())
+  updated_at                       DateTime   @updatedAt
+
+  @@map("booking_addons")
+}

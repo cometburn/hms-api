@@ -11,6 +11,7 @@ model RoomRate {
   rate_type                               String // hourly, nightly, block
   duration_minutes                        Int?
   base_price                              Float
+  overstay_rate                           Float    @default(0)
   extra_person_rate                       Float
   is_dynamic                              Boolean  @default(false)
 

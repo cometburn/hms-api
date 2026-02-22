@@ -8,6 +8,14 @@ import {
 } from "@/repositories/room.repository";
 import { RequestParams } from "@/interfaces"
 
+/**
+ * Gets all rooms
+ * @param hotelId
+ * @param page
+ * @param limit
+ * @param search
+ * @returns
+ */
 export const getAllRoomsService = async ({
     hotelId,
     page,
@@ -34,6 +42,13 @@ export const getAllRoomsService = async ({
     };
 };
 
+
+/**
+ * Creates a room
+ * @param hotelId
+ * @param data
+ * @returns created room
+ */
 export const createRoomService = async (hotelId: number, data: any) => {
     return await createRoomRepository({
         ...data,
@@ -41,6 +56,13 @@ export const createRoomService = async (hotelId: number, data: any) => {
     });
 };
 
+/**
+ * Updates a room
+ * @param hotelId
+ * @param id
+ * @param data
+ * @returns updated room
+ */
 export const updateRoomService = async (
     hotelId: number,
     id: number,

@@ -5,19 +5,10 @@ export const getDashboardRooms = async (
     hotelId: number
 ) => {
     const now = new Date();
-
-    const bookings = await prisma.booking.findMany({
-        where: {
-            hotel_id: hotelId,
-            start_datetime: { lte: now },  // Started before or at now
-            end_datetime: { gte: now },    // Ends after or at now
-            status: { not: "cancelled" }
-        },
-    });
-
     return await prisma.room.findMany({
         where: {
             hotel_id: hotelId,
+            operational_status: 'available'
         },
         orderBy: { name: "asc" },
         include: {
@@ -25,11 +16,22 @@ export const getDashboardRooms = async (
             bookings: {
                 where: {
                     hotel_id: hotelId,
-                    start_datetime: { lte: now },  // Started before or at now
-                    end_datetime: { gte: now },    // Ends after or at now
-                    status: { not: "cancelled" }
+                    // start_datetime: { lte: now },  // Started before or at now
+                    // end_datetime: { gte: now },    // Ends after or at now
+                    status: { equals: "check_in", }
                 },
                 include: {
+                    booking_addons: {
+                        include: {
+                            product: {
+                                select: {
+                                    name: true,
+                                    sku: true,
+                                    category: true,
+                                }
+                            }
+                        }
+                    },
                     room_rate: true,
                     user: {
                         select: {
