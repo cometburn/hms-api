@@ -16,8 +16,6 @@ export const getDashboardRooms = async (
             bookings: {
                 where: {
                     hotel_id: hotelId,
-                    // start_datetime: { lte: now },  // Started before or at now
-                    // end_datetime: { gte: now },    // Ends after or at now
                     status: { equals: "check_in", }
                 },
                 include: {
@@ -32,6 +30,7 @@ export const getDashboardRooms = async (
                             }
                         }
                     },
+                    orders: true,
                     room_rate: true,
                     user: {
                         select: {

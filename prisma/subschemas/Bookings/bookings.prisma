@@ -19,7 +19,7 @@ model Booking {
   payment_status                  String? // unpaid, paid, refunded
   payment_type                    String? // cash, card, online,
   note                            String?
-  orders                          Order[]
+  orders                          Order?
   booking_addons                  BookingAddon[]
 
   created_at                      DateTime @default(now())

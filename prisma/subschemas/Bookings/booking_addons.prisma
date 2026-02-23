@@ -13,8 +13,8 @@ model BookingAddon {
   product                          Product    @relation(fields: [product_id], references: [id])
 
   quantity                         Int        @default(1)
-  price                            Float 
-  total_price                      Float      
+  price                            Float      @default(0) 
+  total_price                      Float      @default(0)
 
   created_at                       DateTime   @default(now())
   updated_at                       DateTime   @updatedAt

@@ -112,6 +112,21 @@ export const findBookingById = async (hotelId: number, bookingId: number) => {
                     }
                 }
             },
+            orders: {
+                include: {
+                    order_items: {
+                        include: {
+                            product: {
+                                select: {
+                                    name: true,
+                                    sku: true,
+                                    category: true,
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             room_rate: true,
             user: {
                 select: {

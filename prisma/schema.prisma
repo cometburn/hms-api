@@ -1,4 +1,4 @@
-//🧩Don't Edit this file.✨Generated in Sat Feb 21 2026 16:08:32 GMT+0800 (Philippine Standard Time)✨
+//🧩Don't Edit this file.✨Generated in Mon Feb 23 2026 16:22:43 GMT+0800 (Philippine Standard Time)✨
 model BookingAddon {
   id         Int     @id @default(autoincrement())
   booking_id Int
@@ -14,8 +14,8 @@ model BookingAddon {
   product    Product @relation(fields: [product_id], references: [id])
 
   quantity    Int   @default(1)
-  price       Float
-  total_price Float
+  price       Float @default(0)
+  total_price Float @default(0)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -43,7 +43,7 @@ model Booking {
   payment_status String? // unpaid, paid, refunded
   payment_type   String? // cash, card, online,
   note           String?
-  orders         Order[]
+  orders         Order?
   booking_addons BookingAddon[]
 
   created_at DateTime @default(now())
@@ -65,10 +65,10 @@ model Hotel {
   bookings   Booking[]
   products   Product[]
   rooms      Room[]
+  orders     Order[]
 
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
-  Order      Order[]
   RoomPromo  RoomPromo[]
   UserHotel  UserHotel[]
 
@@ -94,13 +94,16 @@ model OrderItem {
   order_id Int
   order    Order @relation(fields: [order_id], references: [id])
 
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+
   product_id Int
   product    Product @relation(fields: [product_id], references: [id])
 
   quantity Int
 
-  unit_price  Decimal @db.Decimal(10, 2)
-  total_price Decimal @db.Decimal(10, 2)
+  price       Float @default(0)
+  total_price Float @default(0)
 
   notes String?
 
@@ -116,13 +119,11 @@ model Order {
   hotel_id Int
   hotel    Hotel @relation(fields: [hotel_id], references: [id])
 
-  booking_id Int?
+  booking_id Int?     @unique
   booking    Booking? @relation(fields: [booking_id], references: [id])
 
-  order_time DateTime @default(now())
-
   status      String? @default("pending")
-  total_price Decimal @db.Decimal(10, 2)
+  total_price Float?
 
   notes String?
 
@@ -339,6 +340,7 @@ model User {
   created_at   DateTime       @default(now())
   updated_at   DateTime       @updatedAt
   BookingAddon BookingAddon[]
+  OrderItem    OrderItem[]
 
   @@map("users")
 }

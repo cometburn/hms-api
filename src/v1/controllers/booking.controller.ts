@@ -2,8 +2,15 @@ import { NextFunction, Request, Response } from "express";
 import { socketService } from "@/sockets/socket.service";
 import { getBookingByIdService, createBookingService, updateBookingService } from "@/services/booking.service";
 import { NotFoundError } from "@/helpers/error.helper";
+import { createOrderService } from "@/services/order.service";
 
-
+/**
+ * Get Booking By Id
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
 export const getBookingById = async (
     req: Request,
     res: Response,
@@ -44,17 +51,25 @@ export const createBooking = async (
 
         if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-        const result = await createBookingService({
+        const booking = await createBookingService({
             ...data,
             hotel_id: user.default_hotel.id,
             user_id: user.id,
         });
 
-        socketService.emitToHotelUsers(`hotel_${user.default_hotel.id}`, "check_in", result);
+        // create order
+        await createOrderService({
+            hotel_id: user.default_hotel.id,
+            booking_id: booking.id,
+            total_price: 0,
+            status: "pending"
+        });
+
+        socketService.emitToHotelUsers(`hotel_${user.default_hotel.id}`, "check_in", booking);
 
         return res.status(201).json({
             message: "Booking created successfully",
-            data: result,
+            data: booking,
         });
     } catch (err) {
         next(err);

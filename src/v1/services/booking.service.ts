@@ -10,7 +10,7 @@ import {
 import { RequestParams } from "@/interfaces";
 import { compareObjects } from "@/utils/object.utils";
 import { BadRequestError, NotFoundError } from "@/helpers/error.helper";
-import { BOOKING_EDITABLE_FIELDS, BOOKING_EDIT_WINDOW_MINUTES } from "@/constants";
+import { BOOKING_EDIT_WINDOW_MINUTES } from "@/constants";
 
 
 
@@ -77,8 +77,6 @@ export const updateBookingService = async (hotelId: number, bookingId: number, d
     };
 
     switch (payload.status) {
-        case "check_out":
-            break;
         case "cancelled":
             const changes = compareObjects(booking, payload, ["room_rate_id", "start_datetime", "end_datetime", "total_price", "extra_person"]);
             const hasChanges = Object.keys(changes).length > 0;
