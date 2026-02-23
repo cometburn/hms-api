@@ -8,6 +8,7 @@ model Hotel {
   bookings              Booking[]
   products              Product[]
   rooms                 Room[]
+  orders                Order[]
 
 
   created_at            DateTime @default(now())

@@ -4,17 +4,16 @@ model Order {
   hotel_id      Int
   hotel         Hotel        @relation(fields: [hotel_id], references: [id])
 
-  booking_id    Int?
+  booking_id    Int?         @unique
   booking       Booking?     @relation(fields: [booking_id], references: [id])
 
-  order_time    DateTime     @default(now())
-
   status        String?      @default("pending")
-  total_price   Decimal      @db.Decimal(10, 2)
+  total_price   Float?
 
   notes         String?
 
   order_items   OrderItem[]
+
 
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
