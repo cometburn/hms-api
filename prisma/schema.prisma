@@ -1,4 +1,4 @@
-//🧩Don't Edit this file.✨Generated in Mon Feb 23 2026 16:22:43 GMT+0800 (Philippine Standard Time)✨
+//🧩Don't Edit this file.✨Generated in Sat Feb 28 2026 00:54:34 GMT+0800 (Philippine Standard Time)✨
 model BookingAddon {
   id         Int     @id @default(autoincrement())
   booking_id Int
@@ -17,10 +17,39 @@ model BookingAddon {
   price       Float @default(0)
   total_price Float @default(0)
 
+  // Transfer tracking
+  added_before_transfer       Boolean @default(false)
+  transferred_from_booking_id Int?
+  original_booking_addon_id   Int? // Reference to the original addon if copied during transfer
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@index([booking_id])
+  @@index([transferred_from_booking_id])
   @@map("booking_addons")
+}
+
+model BookingCharge {
+  id         Int     @id @default(autoincrement())
+  booking_id Int
+  booking    Booking @relation(fields: [booking_id], references: [id])
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+
+  room_id Int
+  room    Room @relation(fields: [room_id], references: [id])
+
+  name  String
+  price Float  @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([booking_id])
+  @@index([room_id])
+  @@map("booking_charges")
 }
 
 model Booking {
@@ -37,14 +66,24 @@ model Booking {
   start_datetime DateTime @default(now())
   end_datetime   DateTime @default(now())
 
-  extra_person   Int            @default(0)
+  extra_person   Int     @default(0)
   total_price    Float
   status         String // pending, confirmed, cancelled, completed
   payment_status String? // unpaid, paid, refunded
   payment_type   String? // cash, card, online,
   note           String?
-  orders         Order?
-  booking_addons BookingAddon[]
+
+  // Transfer tracking fields
+  transferred_from_booking_id Int?
+  transferred_from_booking    Booking?  @relation("BookingTransfers", fields: [transferred_from_booking_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  transferred_to_bookings     Booking[] @relation("BookingTransfers")
+  transferred_at              DateTime?
+  transfer_reason             String?
+  original_room_id            Int? // Store original room for reference
+
+  orders          Order?
+  booking_addons  BookingAddon[]
+  booking_charges BookingCharge[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -52,6 +91,7 @@ model Booking {
   @@index([end_datetime])
   @@index([hotel_id, status])
   @@index([status, end_datetime])
+  @@index([transferred_from_booking_id])
   @@map("bookings")
 }
 
@@ -100,16 +140,21 @@ model OrderItem {
   product_id Int
   product    Product @relation(fields: [product_id], references: [id])
 
-  quantity Int
+  quantity    Int
+  price       Float   @default(0)
+  total_price Float   @default(0)
+  notes       String?
 
-  price       Float @default(0)
-  total_price Float @default(0)
-
-  notes String?
+  // Transfer tracking
+  added_before_transfer       Boolean @default(false)
+  transferred_from_booking_id Int?
+  original_order_item_id      Int? // Reference to original item if copied
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@index([order_id])
+  @@index([transferred_from_booking_id])
   @@map("order_items")
 }
 
@@ -124,14 +169,17 @@ model Order {
 
   status      String? @default("pending")
   total_price Float?
+  notes       String?
 
-  notes String?
+  // Transfer tracking
+  transferred_from_booking_id Int?
 
   order_items OrderItem[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@index([transferred_from_booking_id])
   @@map("orders")
 }
 
@@ -258,9 +306,10 @@ model Room {
 
   name               String
   floor              String?
-  operational_status String    @default("available")
+  operational_status String          @default("available")
   notes              String?
   bookings           Booking[]
+  booking_charges    BookingCharge[]
 
   created_at   DateTime       @default(now())
   updated_at   DateTime       @updatedAt
@@ -337,10 +386,11 @@ model User {
   hotels            UserHotel[]
   owned_hotels      UserHotel[]       @relation("OwnerUser")
 
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @updatedAt
-  BookingAddon BookingAddon[]
-  OrderItem    OrderItem[]
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  BookingAddon  BookingAddon[]
+  BookingCharge BookingCharge[]
+  OrderItem     OrderItem[]
 
   @@map("users")
 }

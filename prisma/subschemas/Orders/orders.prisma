@@ -9,14 +9,16 @@ model Order {
 
   status        String?      @default("pending")
   total_price   Float?
-
   notes         String?
 
+  // Transfer tracking
+  transferred_from_booking_id      Int?
+  
   order_items   OrderItem[]
-
 
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
 
+  @@index([transferred_from_booking_id])
   @@map("orders")
 }

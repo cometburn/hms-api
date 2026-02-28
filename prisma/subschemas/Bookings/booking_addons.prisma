@@ -16,8 +16,15 @@ model BookingAddon {
   price                            Float      @default(0) 
   total_price                      Float      @default(0)
 
+  // Transfer tracking
+  added_before_transfer            Boolean    @default(false)
+  transferred_from_booking_id      Int?
+  original_booking_addon_id        Int?       // Reference to the original addon if copied during transfer
+  
   created_at                       DateTime   @default(now())
   updated_at                       DateTime   @updatedAt
 
+  @@index([booking_id])
+  @@index([transferred_from_booking_id])
   @@map("booking_addons")
 }

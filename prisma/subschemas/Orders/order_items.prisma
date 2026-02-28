@@ -5,20 +5,25 @@ model OrderItem {
   order                             Order    @relation(fields: [order_id], references: [id])
 
   user_id                           Int
-  user                              User       @relation(fields: [user_id], references: [id])
+  user                              User     @relation(fields: [user_id], references: [id])
 
   product_id                        Int
   product                           Product  @relation(fields: [product_id], references: [id])
 
   quantity                          Int
-
-  price                             Float     @default(0)
-  total_price                       Float     @default(0) 
-
+  price                             Float    @default(0)
+  total_price                       Float    @default(0) 
   notes                             String?
 
+  // Transfer tracking
+  added_before_transfer             Boolean  @default(false)
+  transferred_from_booking_id       Int?
+  original_order_item_id            Int?     // Reference to original item if copied
+  
   created_at                        DateTime @default(now())
   updated_at                        DateTime @updatedAt
 
+  @@index([order_id])
+  @@index([transferred_from_booking_id])
   @@map("order_items")
 }
