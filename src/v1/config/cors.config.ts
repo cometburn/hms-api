@@ -1,4 +1,4 @@
-import { CorsOptions } from 'cors';
+import { CorsOptions } from "cors";
 
 export const allowedOrigins = [
     process.env.APP_URL,
@@ -15,9 +15,7 @@ export const corsOptions: CorsOptions = {
         const cleanOrigin = origin.replace(/\/$/, "");
 
         if (
-            allowedOrigins.some(
-                (allowed) => allowed && allowed.replace(/\/$/, "") === cleanOrigin
-            )
+            allowedOrigins.some((allowed) => allowed && allowed.replace(/\/$/, "") === cleanOrigin)
         ) {
             callback(null, true);
         } else {

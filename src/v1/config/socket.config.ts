@@ -1,57 +1,63 @@
-import { Server } from 'socket.io';
-import jwt from 'jsonwebtoken';
-import { verifyAccessToken, verifyRefreshToken } from '@/helpers/token.helper';
+import { Server } from "socket.io";
+import { TokenHelper } from "@/helpers/token.helper";
+import { UserRepository } from "@/repositories/user.repository";
 
-export const configureSocket = (io: Server) => {
+export const configureSocket = (io: Server): void => {
     io.use(async (socket, next) => {
         try {
-            const token = socket.handshake.auth.token;
-            const refreshToken = socket.handshake.headers.cookie
-                ?.split('; ')
-                .find(row => row.startsWith('refreshToken='))
-                ?.split('=')[1];
+            const tokenHelper = new TokenHelper();
+            const userRepository = new UserRepository();
+            const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(" ")[1];
 
             if (!token) {
-                return next(new Error("Authentication token required"));
+                return next(new Error("Authentication error: No token provided"));
             }
 
             let decoded;
+
             try {
-                // Try to verify the access token first
-                decoded = verifyAccessToken(token);
-            } catch (err) {
+                // Try to verify access token
+                decoded = tokenHelper.verifyAccessToken(token);
+            } catch (accessError) {
+                let refreshToken = null;
+
+                if (socket.handshake.headers.cookie) {
+                    const cookies = socket.handshake.headers.cookie
+                        .split(';')
+                        .reduce((acc, cookie) => {
+                            const [key, value] = cookie.trim().split('=');
+                            acc[key] = value;
+                            return acc;
+                        }, {} as Record<string, string>);
+
+                    refreshToken = cookies.refreshToken;
+                }
+
+                if (!refreshToken) {
+                    return next(new Error("Authentication error: Token expired and no refresh token"));
+                }
+
                 try {
-                    decoded = refreshToken ? verifyRefreshToken(refreshToken) : null;
-                } catch (err) {
-                    return next(new Error("Invalid or expired refresh token"));
+                    const refreshPayload = tokenHelper.verifyRefreshToken(refreshToken);
+                    const user = await userRepository.getUserByIdWithDefaultHotel(Number(refreshPayload.id));
+
+                    if (!user) {
+                        console.error("❌ User not found");
+                        return next(new Error("Authentication error: User not found"));
+                    }
+
+                    // Use refresh token payload
+                    decoded = refreshPayload;
+                } catch (refreshError) {
+                    return next(new Error("Authentication error: All tokens expired"));
                 }
             }
 
-            if (!decoded) {
-                return next(new Error("Invalid or expired refresh token"));
-            }
-
-            // Attach user info to socket for later use
             socket.data.userId = decoded.id;
             socket.data.userEmail = decoded.email;
-            socket.data.user = decoded; // Store full decoded token
-
-            console.log(`🚀 Socket authenticated for user: ${socket.data.userId}`);
             next();
         } catch (error) {
-
-            console.error("Socket authentication error:", error);
-
-            if (error instanceof jwt.TokenExpiredError) {
-                return next(new Error("Token expired"));
-            }
-            if (error instanceof jwt.JsonWebTokenError) {
-                return next(new Error("Invalid token"));
-            }
-
-            next(new Error("Authentication failed"));
+            next(new Error("Authentication error"));
         }
     });
-
-    return io;
 };
