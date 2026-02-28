@@ -1,12 +1,18 @@
 import { Prisma } from "@prisma/client";
-import { switchUserHotel } from "@/repositories/userHotel.repository";
+import { UserHotelRepository } from "@/repositories/userHotel.repository";
 import { BadRequestError } from "@/helpers/error.helper";
 
-export const createRoomTypeService = async (
-  userId: number,
-  hotelId: number,
-  data: any
-) => {
-  await switchUserHotel(userId, hotelId);
-  return { message: "User Hotel switched" };
-};
+export class UserService {
+    private userHotelRepository: UserHotelRepository;
+    constructor() {
+        this.userHotelRepository = new UserHotelRepository();
+    }
+
+    /**
+     * Switches user default hotel
+     */
+    switchUserHotel = async (userId: number, hotelId: number) => {
+        await this.userHotelRepository.switchUserHotel(userId, hotelId);
+        return { message: "User Hotel switched" };
+    };
+}

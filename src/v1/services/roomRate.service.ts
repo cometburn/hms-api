@@ -1,69 +1,81 @@
 import { RoomRate } from "@prisma/client";
-import {
-  getRoomRates,
-  countRoomRates,
-  createRoomRateRepository,
-  updateRoomRateRepository,
-  deleteRoomRateRepository,
-  getRoomRatesByRoomTypeIdRepository
-} from "@/repositories/roomRate.repository";
+import { RoomRateRepository } from "@/repositories/roomRate.repository";
 
 import { RequestParams } from "@/interfaces";
 
-export const getAllRoomRatesService = async ({
-  hotelId,
-  page,
-  limit,
-  search,
-}: RequestParams) => {
-  const skip = (page - 1) * limit;
+export class RoomRateService {
+    private roomRateRepository: RoomRateRepository;
+    constructor() {
+        this.roomRateRepository = new RoomRateRepository();
+    }
 
-  const [data, total] = await Promise.all([
-    getRoomRates(hotelId, search, skip, limit),
-    countRoomRates(hotelId, search),
-  ]);
+    /**
+     * Gets all room rates service
+     * @param hotelId
+     * @param page
+     * @param limit
+     * @param search
+     * @returns
+     */
+    getAllRoomRatesService = async ({ hotelId, page, limit, search }: RequestParams) => {
+        const skip = (page - 1) * limit;
 
-  const totalPages = Math.ceil(total / limit);
+        const [data, total] = await Promise.all([
+            this.roomRateRepository.getRoomRates(hotelId, search, skip, limit),
+            this.roomRateRepository.countRoomRates(hotelId, search),
+        ]);
 
-  return {
-    data,
-    meta: {
-      total,
-      page,
-      limit,
-      totalPages,
-    },
-  };
-};
+        const totalPages = Math.ceil(total / limit);
 
-export const createRoomRateService = async (hotelId: number, data: any) => {
-  return await createRoomRateRepository({
-    ...data,
-    hotel_id: hotelId,
-  });
-};
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+            },
+        };
+    };
 
-export const updateRoomRateService = async (
-  hotelId: number,
-  id: number,
-  data: Partial<RoomRate>
-) => {
-  return await updateRoomRateRepository(hotelId, id, data);
-}
+    /**
+     * Creates a room rate service
+     * @param hotelId
+     * @param data
+     * @returns
+     */
+    createRoomRateService = async (hotelId: number, data: any) => {
+        return await this.roomRateRepository.createRoomRateRepository({
+            ...data,
+            hotel_id: hotelId,
+        });
+    };
 
-/**
- * Delete room type service
- * @param hotelId
- * @param id
- * @returns deleted room type
- */
-export const deleteRoomRateService = async (hotelId: number, id: number) => {
-  return await deleteRoomRateRepository(hotelId, id);
-};
+    /**
+     * Updates room rate service
+     * @param hotelId
+     * @param id
+     * @param data
+     * @returns
+     */
+    updateRoomRateService = async (hotelId: number, id: number, data: Partial<RoomRate>) => {
+        return await this.roomRateRepository.updateRoomRateRepository(hotelId, id, data);
+    };
 
-export const getRoomRatesByRoomTypeIdService = async (
-  hotelId: number,
-  roomTypeId: number
-) => {
-  return await getRoomRatesByRoomTypeIdRepository(hotelId, roomTypeId);
+    /**
+     * Delete room type service
+     * @param hotelId
+     * @param id
+     * @returns deleted room type
+     */
+    deleteRoomRateService = async (hotelId: number, id: number) => {
+        return await this.roomRateRepository.deleteRoomRateRepository(hotelId, id);
+    };
+
+    getRoomRatesByRoomTypeIdService = async (hotelId: number, roomTypeId: number) => {
+        return await this.roomRateRepository.getRoomRatesByRoomTypeIdRepository(
+            hotelId,
+            roomTypeId
+        );
+    };
 }

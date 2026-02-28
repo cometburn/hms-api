@@ -1,7 +1,11 @@
-import { getDashboardRooms } from "@/repositories/dashboard.repository";
+import { DashboardRepository } from "@/repositories/dashboard.repository";
 
-export const getDashboardRoomsService = async (
-    hotelId: number
-) => {
-    return await getDashboardRooms(hotelId);
-};
+export class DashboardService {
+    private dashboardRepository: DashboardRepository;
+    constructor() {
+        this.dashboardRepository = new DashboardRepository();
+    }
+    getDashboardRooms = async (hotelId: number) => {
+        return await this.dashboardRepository.getDashboardRooms(hotelId);
+    };
+}

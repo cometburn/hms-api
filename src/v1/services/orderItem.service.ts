@@ -1,36 +1,36 @@
 import { OrderItem } from "@prisma/client";
-import {
-    getOrderItemsRepository,
-    createOrderItemRepository,
-    deleteOrderItemRepository
-} from "@/repositories/orderItem.repository";
+import { OrderItemRepository } from "@/repositories/orderItem.repository";
 import { OrderItemRequestParams } from "@/interfaces/types/orderItem.types";
 
-/**
- * Gets all Order Items
- * @param orderId
- * @returns
- */
-export const getOrderItemService = async ({ orderId }: OrderItemRequestParams) => {
-    return await getOrderItemsRepository(orderId);
-};
+export class OrderItemService {
+    private orderItemRepository: OrderItemRepository;
+    constructor() {
+        this.orderItemRepository = new OrderItemRepository();
+    }
 
+    /**
+     * Gets all Order Items
+     * @param orderId
+     * @returns
+     */
+    getOrderItemService = async ({ orderId }: OrderItemRequestParams) => {
+        return await this.orderItemRepository.getOrderItemsRepository(orderId);
+    };
 
-/**
- * Create Order Item service
- * @param data
- * @returns created Order Item
- */
-export const createOrderItemService = async (data: OrderItem) => {
-    return await createOrderItemRepository(data);
-};
+    /**
+     * Create Order Item service
+     * @param data
+     * @returns created Order Item
+     */
+    createOrderItemService = async (data: OrderItem) => {
+        return await this.orderItemRepository.createOrderItemRepository(data);
+    };
 
-/**
- * Deletes Order Item
- * @param orderItemId
- */
-export const deleteOrderItemService = async (
-    orderItemId: number
-) => {
-    return await deleteOrderItemRepository(orderItemId);
-};
+    /**
+     * Deletes Order Item
+     * @param orderItemId
+     */
+    deleteOrderItemService = async (orderItemId: number) => {
+        return await this.orderItemRepository.deleteOrderItemRepository(orderItemId);
+    };
+}

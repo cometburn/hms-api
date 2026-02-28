@@ -1,79 +1,74 @@
 import { RoomType } from "@prisma/client";
-import {
-  getRoomTypes,
-  countRoomTypes,
-  createRoomTypeRepository,
-  updateRoomTypeRepository,
-  deleteRoomTypeRepository,
-} from "@/repositories/roomType.repository";
+import { RoomTypeRepository } from "@/repositories/roomType.repository";
 import { RequestParams } from "@/interfaces";
 
-/**
- * Gets all room types
- * @param param0
- * @returns paginated room types
- */
-export const getAllRoomTypesService = async ({
-  hotelId,
-  page,
-  limit,
-  search,
-}: RequestParams) => {
-  const skip = page > 0 && limit > 0 ? (page - 1) * limit : undefined;
-  const take = limit > 0 ? limit : undefined;
+export class RoomTypeService {
+    private roomTypeRepository: RoomTypeRepository;
+    constructor() {
+        this.roomTypeRepository = new RoomTypeRepository();
+    }
 
-  const [data, total] = await Promise.all([
-    getRoomTypes(hotelId, search, skip, take),
-    countRoomTypes(hotelId, search),
-  ]);
+    /**
+     * Gets all room types
+     * @param  hotelId
+     * @param  page
+     * @param  limit
+     * @param  search
+     * @returns
+     */
+    getAllRoomTypes = async ({ hotelId, page, limit, search }: RequestParams) => {
+        const skip = page > 0 && limit > 0 ? (page - 1) * limit : undefined;
+        const take = limit > 0 ? limit : undefined;
 
-  const totalPages = limit > 0 ? Math.ceil(total / limit) : 1;
+        const [data, total] = await Promise.all([
+            this.roomTypeRepository.getRoomTypes(hotelId, search, skip, take),
+            this.roomTypeRepository.countRoomTypes(hotelId, search),
+        ]);
 
-  return {
-    data,
-    meta: {
-      total,
-      page: page || 1,
-      limit: limit || total,
-      totalPages,
-    },
-  };
-};
+        const totalPages = limit > 0 ? Math.ceil(total / limit) : 1;
 
-/**
- * Creates room type
- * @param hotelId
- * @param data
- * @return created room type
- */
-export const createRoomTypeService = async (hotelId: number, data: any) => {
-  return await createRoomTypeRepository({
-    ...data,
-    hotel_id: hotelId,
-  });
-};
+        return {
+            data,
+            meta: {
+                total,
+                page: page || 1,
+                limit: limit || total,
+                totalPages,
+            },
+        };
+    };
 
-/**
- * Update room type service
- * @param hotelId
- * @param id
- * @param data
- * @returns updated room type
- */
-export const updateRoomTypeService = async (
-  hotelId: number,
-  id: number,
-  data: Partial<RoomType>
-) => {
-  return await updateRoomTypeRepository(hotelId, id, data);
+    /**
+     * Creates room type
+     * @param hotelId
+     * @param data
+     * @return created room type
+     */
+    createRoomType = async (hotelId: number, data: any) => {
+        return await this.roomTypeRepository.createRoomType({
+            ...data,
+            hotel_id: hotelId,
+        });
+    };
+
+    /**
+     * Update room type
+     * @param hotelId
+     * @param id
+     * @param data
+     * @returns updated room type
+     */
+    updateRoomType = async (hotelId: number, id: number, data: Partial<RoomType>) => {
+        return await this.roomTypeRepository.updateRoomType(hotelId, id, data);
+    };
+
+    /**
+     * Delete room type
+     * @param hotelId
+     * @param id
+     * @returns deleted room type
+     */
+    deleteRoomType = async (hotelId: number, id: number) => {
+        return await this.roomTypeRepository.deleteRoomType(hotelId, id);
+    };
 }
-
-/**
- * Delete room type service
- * @param hotelId
- * @param id
- * @returns deleted room type
- */
-export const deleteRoomTypeService = async (hotelId: number, id: number) => {
-  return await deleteRoomTypeRepository(hotelId, id);
-};

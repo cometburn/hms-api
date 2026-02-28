@@ -1,37 +1,36 @@
-
-import {
-    getOrdersRepository,
-    createOrderRepository,
-    deleteOrderRepository
-} from "@/repositories/order.respository";
+import { OrderRepository } from "@/repositories/order.repository";
 import { Order, OrderRequestParams } from "@/interfaces/types/order.types";
 
-/**
- * Gets all Orders
- * @param bookingId
- * @returns
- */
-export const getOrderService = async ({ bookingId }: OrderRequestParams) => {
-    return await getOrdersRepository(bookingId);
-};
+export class OrderService {
+    private orderRepo: OrderRepository;
 
+    constructor() {
+        this.orderRepo = new OrderRepository();
+    }
 
-/**
- * Create Order service
- * @param data
- * @returns created Order
- */
-export const createOrderService = async (data: Order) => {
+    /**
+     * Gets all Orders
+     * @param bookingId
+     * @returns
+     */
+    getOrder = async ({ bookingId }: OrderRequestParams) => {
+        return await this.orderRepo.getOrders(bookingId);
+    };
 
-    return await createOrderRepository(data);
-};
+    /**
+     * Create Order 
+     * @param data
+     * @returns created Order
+     */
+    createOrder = async (data: Order) => {
+        return await this.orderRepo.createOrder(data);
+    };
 
-/**
- * Deletes Order
- * @param bookingId
- */
-export const deleteOrderService = async (
-    bookingId: number
-) => {
-    return await deleteOrderRepository(bookingId);
-};
+    /**
+     * Deletes Order
+     * @param bookingId
+     */
+    deleteOrder = async (bookingId: number) => {
+        return await this.orderRepo.deleteOrder(bookingId);
+    };
+}
