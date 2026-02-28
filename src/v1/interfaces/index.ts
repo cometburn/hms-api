@@ -2,54 +2,54 @@ import { Subscription, User, UserHotel } from "@prisma/client";
 import { UserHotelResponse } from "./types/user.types";
 
 export interface SanitizedUser {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-  user_type_id: number;
-  // All hotels linked to the user
-  hotels: {
-    is_default: boolean;
-    hotel: {
-      id: number;
-      name: string;
-      address: string;
-    };
-  }[];
-
-  // Convenience property: extracted default hotel (optional)
-  default_hotel?: {
     id: number;
-    name: string;
-    address: string;
-  } | null;
+    email: string;
+    first_name: string;
+    last_name: string;
+    user_type_id: number;
+    // All hotels linked to the user
+    hotels: {
+        is_default: boolean;
+        hotel: {
+            id: number;
+            name: string;
+            address: string;
+        };
+    }[];
+
+    // Convenience property: extracted default hotel (optional)
+    default_hotel?: {
+        id: number;
+        name: string;
+        address: string;
+    } | null;
 }
 
 export interface TokenPayload {
-  id: number;
-  sub: string;
-  email: string;
+    id: number;
+    sub: string;
+    email: string;
 }
 
 export interface LoginResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-  userHotels: UserHotelResponse[];
-  subscription: Subscription | null;
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+    userHotels: UserHotelResponse[];
+    subscription: Subscription | null;
 }
 
 export interface CreateGoogleUserInput {
-  email: string;
-  firstName: string;
-  lastName: string;
-  googleId: string;
-  avatar: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    googleId: string;
+    avatar: string;
 }
 
 export interface RequestParams {
-  hotelId: number;
-  page: number;
-  limit: number;
-  search: string;
+    hotelId: number;
+    page: number;
+    limit: number;
+    search: string;
 }
