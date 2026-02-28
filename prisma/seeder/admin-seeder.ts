@@ -69,7 +69,7 @@ async function main() {
     skipDuplicates: true, // optional
   });
 
-  console.log("✅ Seeded multiple users");
+  console.log("Seeded multiple users");
 }
 
 main()
