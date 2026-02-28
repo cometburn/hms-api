@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { createServer } from "node:http";
-import { Server } from 'socket.io';
+import { Server } from "socket.io";
 
 // Configurations
 import { configureMiddleware } from "@/config/middleware.config";
@@ -15,8 +15,8 @@ import { errorHandler } from "./v1/middlewares/error.middleware";
 import apiRoute from "@/routes/api.route";
 
 // Socket handlers
-import { registerSocketHandlers } from "@/sockets/socket.handler";
 import { socketService } from "@/sockets/socket.service";
+import { socketHandlers } from "@/sockets/socket.handler";
 
 // Load environment variables
 dotenv.config();
@@ -32,7 +32,7 @@ configureMiddleware(app);
 
 // Initialize Socket.IO with CORS
 export const io = new Server(httpServer, {
-  cors: socketCorsOptions,
+    cors: socketCorsOptions,
 });
 
 // Configure Socket.IO authentication
@@ -42,15 +42,15 @@ configureSocket(io);
 socketService.init(io);
 
 // Register socket event handlers
-registerSocketHandlers(io);
+socketHandlers.register(io);
 
 // Block directory listing
 app.get("/", (req: Request, res: Response) => {
-  res.json({
-    status: "ok",
-    message: "API is running. Use /api endpoints.",
-    timestamp: new Date().toISOString()
-  });
+    res.json({
+        status: "ok",
+        message: "API is running. Use /api endpoints.",
+        timestamp: new Date().toISOString(),
+    });
 });
 
 // API Routes
@@ -58,11 +58,11 @@ app.use("/api", apiRoute);
 
 // Catch 404
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.status(404).json({
-    error: "Not Found",
-    message: "Route not found",
-    path: req.path
-  });
+    res.status(404).json({
+        error: "Not Found",
+        message: "Route not found",
+        path: req.path,
+    });
 });
 
 // Error handler (must be last)
