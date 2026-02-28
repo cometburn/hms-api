@@ -1,187 +1,250 @@
-import { Server, Socket } from 'socket.io';
+import { Server, Socket } from "socket.io";
 
-export const registerSocketHandlers = (io: Server) => {
-    io.on('connection', (socket: Socket) => {
+export class SocketHandlers {
+    /**
+     * Register all socket event handlers
+     */
+    register(io: Server): void {
+        io.on("connection", (socket: Socket) => {
+            this.handleConnection(io, socket);
+        });
+    }
+
+    /**
+     * Handle new socket connection
+     */
+    private handleConnection(io: Server, socket: Socket): void {
         const userId = socket.data.userId;
         const userEmail = socket.data.userEmail;
 
-        /**
-         * Join a hotel room id (with authorization check)
-         */
-        socket.on('join_hotel', async (hotelId: string, callback?: (response: any) => void) => {
-            try {
-                // Join the room
-                socket.join(hotelId);
+        console.log(`User ${userId} (${userEmail}) connected with socket ${socket.id}`);
 
-                console.log(`🏨 User ${userId} joined ${hotelId}`);
+        // Register all event handlers
+        this.handleJoinHotel(socket, userId);
+        this.handleLeaveHotel(socket, userId);
+        this.handleSendMessage(socket, userId, userEmail);
+        this.handleGetHotelUsers(io, socket);
+        this.handleDisconnect(socket, userId);
+        this.handleError(socket, userId);
+    }
+
+    /**
+     * Handle join_hotel event
+     */
+    private handleJoinHotel(socket: Socket, userId: number): void {
+        socket.on("join_hotel", async (hotelId: string, callback?: (response: any) => void) => {
+            try {
+                const roomName = `hotel_${hotelId}`;
+
+                // Join the room
+                socket.join(roomName);
+
+                console.log(`🏨 User ${userId} joined ${roomName}`);
 
                 // Notify others in the room
-                socket.to(hotelId).emit('user_joined', {
+                socket.to(roomName).emit("user_joined", {
                     userId,
                     socketId: socket.id,
-                    timestamp: new Date()
+                    timestamp: new Date(),
                 });
 
                 // Send success response
                 if (callback) {
                     callback({
                         success: true,
-                        message: `Joined hotel ${hotelId}`
+                        message: `Joined hotel ${hotelId}`,
                     });
                 }
             } catch (error) {
-                console.error('Error joining hotel:', error);
+                console.error("Error joining hotel:", error);
                 if (callback) {
                     callback({
                         success: false,
-                        error: 'Failed to join hotel'
+                        error: "Failed to join hotel",
                     });
                 }
             }
         });
+    }
 
-        /**
-         * Leave a hotel room
-         */
-        socket.on('leave_hotel', (hotelId: string, callback?: (response: any) => void) => {
-            socket.leave(`hotel_${hotelId}`);
+    /**
+     * Handle leave_hotel event
+     */
+    private handleLeaveHotel(socket: Socket, userId: number): void {
+        socket.on("leave_hotel", (hotelId: string, callback?: (response: any) => void) => {
+            const roomName = `hotel_${hotelId}`;
 
-            console.log(`🚪 User ${userId} left hotel ${hotelId}`);
+            socket.leave(roomName);
 
-            socket.to(`hotel_${hotelId}`).emit('user_left', {
+            console.log(`🚪 User ${userId} left ${roomName}`);
+
+            socket.to(roomName).emit("user_left", {
                 userId,
                 socketId: socket.id,
-                timestamp: new Date()
+                timestamp: new Date(),
             });
 
             if (callback) {
-                callback({ success: true, message: `Left hotel ${hotelId}` });
+                callback({
+                    success: true,
+                    message: `Left hotel ${hotelId}`
+                });
             }
         });
+    }
 
-        /**
-         * Send a message to a room
-         */
-        socket.on('send_message', async (data: {
-            hotelId: string;
-            message: string;
-            type?: string;
-        }, callback?: (response: any) => void) => {
-            try {
-                const { hotelId, message, type = 'text' } = data;
+    /**
+     * Handle send_message event
+     */
+    private handleSendMessage(socket: Socket, userId: number, userEmail: string): void {
+        socket.on(
+            "send_message",
+            async (
+                data: {
+                    hotelId: string;
+                    message: string;
+                    type?: string;
+                },
+                callback?: (response: any) => void
+            ) => {
+                try {
+                    const { hotelId, message, type = "text" } = data;
+                    const roomName = `hotel_${hotelId}`;
 
-                // Verify user is in the room
-                const rooms = Array.from(socket.rooms);
-                if (!rooms.includes(`hotel_${hotelId}`)) {
+                    // Verify user is in the room
+                    if (!socket.rooms.has(roomName)) {
+                        if (callback) {
+                            callback({
+                                success: false,
+                                error: "You must join the hotel first",
+                            });
+                        }
+                        return;
+                    }
+
+                    // Broadcast to all users in the hotel room except sender
+                    socket.to(roomName).emit("message", {
+                        userId,
+                        userEmail,
+                        message,
+                        type,
+                        timestamp: new Date(),
+                        socketId: socket.id,
+                    });
+
+                    console.log(`💬 Message from ${userId} in ${roomName}`);
+
+                    if (callback) {
+                        callback({
+                            success: true,
+                            message: "Message sent"
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error sending message:", error);
                     if (callback) {
                         callback({
                             success: false,
-                            error: 'You must join the hotel first'
+                            error: "Failed to send message",
                         });
                     }
-                    return;
-                }
-
-                // Broadcast to all users in the hotel room except sender
-                socket.to(`hotel_${hotelId}`).emit('message', {
-                    userId,
-                    userEmail,
-                    message,
-                    type,
-                    timestamp: new Date(),
-                    socketId: socket.id
-                });
-
-                console.log(`💬 Message from ${userId} in hotel ${hotelId}`);
-
-                if (callback) {
-                    callback({ success: true, message: 'Message sent' });
-                }
-            } catch (error) {
-                console.error('Error sending message:', error);
-                if (callback) {
-                    callback({
-                        success: false,
-                        error: 'Failed to send message'
-                    });
                 }
             }
-        });
+        );
+    }
 
-        /**
-         * Get list of users in a room
-         */
-        socket.on('get_hotel_users', async (hotelId: string, callback?: (response: any) => void) => {
-            try {
-                const room = io.sockets.adapter.rooms.get(`hotel_${hotelId}`);
+    /**
+     * Handle get_hotel_users event
+     */
+    private handleGetHotelUsers(io: Server, socket: Socket): void {
+        socket.on(
+            "get_hotel_users",
+            async (hotelId: string, callback?: (response: any) => void) => {
+                try {
+                    const roomName = `hotel_${hotelId}`;
+                    const room = io.sockets.adapter.rooms.get(roomName);
 
-                if (!room) {
-                    if (callback) {
-                        callback({ success: true, users: [] });
+                    if (!room) {
+                        if (callback) {
+                            callback({
+                                success: true,
+                                users: [],
+                                count: 0
+                            });
+                        }
+                        return;
                     }
-                    return;
-                }
 
-                const socketIds = Array.from(room);
-                const users = await Promise.all(
-                    socketIds.map(async (socketId) => {
-                        const socket = io.sockets.sockets.get(socketId);
-                        return socket ? {
-                            socketId,
-                            userId: socket.data.userId,
-                            email: socket.data.userEmail
-                        } : null;
-                    })
-                );
+                    const socketIds = Array.from(room);
+                    const users = await Promise.all(
+                        socketIds.map(async (socketId) => {
+                            const socket = io.sockets.sockets.get(socketId);
+                            return socket
+                                ? {
+                                    socketId,
+                                    userId: socket.data.userId,
+                                    email: socket.data.userEmail,
+                                }
+                                : null;
+                        })
+                    );
 
-                const filteredUsers = users.filter(user => user !== null);
+                    const filteredUsers = users.filter((user) => user !== null);
 
-                if (callback) {
-                    callback({
-                        success: true,
-                        users: filteredUsers,
-                        count: filteredUsers.length
-                    });
-                }
-            } catch (error) {
-                console.error('Error getting hotel users:', error);
-                if (callback) {
-                    callback({
-                        success: false,
-                        error: 'Failed to get users'
-                    });
+                    if (callback) {
+                        callback({
+                            success: true,
+                            users: filteredUsers,
+                            count: filteredUsers.length,
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error getting hotel users:", error);
+                    if (callback) {
+                        callback({
+                            success: false,
+                            error: "Failed to get users",
+                        });
+                    }
                 }
             }
-        });
+        );
+    }
 
-        /**
-         * Handle disconnect
-         */
-        socket.on('disconnect', (reason) => {
+    /**
+     * Handle disconnect event
+     */
+    private handleDisconnect(socket: Socket, userId: number): void {
+        socket.on("disconnect", (reason) => {
             console.log(`❌ User ${userId} disconnected:`, {
                 reason,
                 socketId: socket.id,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
             });
 
             // Notify all rooms this user was in
-            const rooms = Array.from(socket.rooms);
-            rooms.forEach(room => {
+            socket.rooms.forEach((room) => {
+                // Skip the socket's own room (socket.id)
                 if (room !== socket.id) {
-                    socket.to(room).emit('user_disconnected', {
+                    socket.to(room).emit("user_disconnected", {
                         userId,
                         socketId: socket.id,
-                        timestamp: new Date()
+                        timestamp: new Date(),
                     });
                 }
             });
         });
+    }
 
-        /**
-         * Handle errors
-         */
-        socket.on('error', (error) => {
+    /**
+     * Handle error event
+     */
+    private handleError(socket: Socket, userId: number): void {
+        socket.on("error", (error) => {
             console.error(`⚠️ Socket error for user ${userId}:`, error);
         });
-    });
-};
+    }
+}
+
+// Export class and singleton instance
+export const socketHandlers = new SocketHandlers();
