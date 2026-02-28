@@ -1,11 +1,8 @@
 const isDate = (value: unknown): value is Date => {
     return value instanceof Date;
-}
+};
 
-export const compareObjects = <
-    T extends Record<string, unknown>,
-    K extends keyof T
->(
+export const compareObjects = <T extends Record<string, unknown>, K extends keyof T>(
     original: T,
     updated: Partial<T>,
     keys: K[]
