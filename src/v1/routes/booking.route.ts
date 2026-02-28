@@ -1,12 +1,13 @@
-import express from "express";
-import { createBooking, updateBooking, getBookingById } from "@/controllers/booking.controller";
+import { Router } from "express";
+import { BookingController } from "@/controllers/booking.controller";
 import { withValidation } from "@/middlewares/validation.middleware";
-import { bookingSchema } from "@/interfaces/types/booking.types";
+import { bookingSchema, updateBookingSchema } from "@/interfaces/types/booking.types";
 
-const bookingRoute = express.Router();
+const router = Router();
+const controller = new BookingController();
 
-bookingRoute.post("/", withValidation(bookingSchema, createBooking));
-bookingRoute.put("/:bookingId", withValidation(bookingSchema, updateBooking));
-bookingRoute.get("/:bookingId", getBookingById);
+router.post("/", withValidation(bookingSchema, controller.createBooking));
+router.put("/:bookingId", withValidation(updateBookingSchema, controller.updateBooking));
+router.get("/:bookingId", controller.getBookingById);
 
-export default bookingRoute;
+export default router;

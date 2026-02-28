@@ -1,22 +1,16 @@
 import { Router } from "express";
-import {
-  login,
-  refreshToken,
-  me,
-  logout,
-  googleLogin,
-} from "@/controllers/auth.controller";
+import { AuthController } from "@/controllers/auth.controller";
 import { protect } from "@/middlewares/auth.middleware";
-
-import { loginSchema } from "@/interfaces/types/auth.types";
 import { withValidation } from "@/middlewares/validation.middleware";
+import { loginSchema } from "@/interfaces/types/auth.types";
 
-const authRoute = Router();
+const router = Router();
+const controller = new AuthController();
 
-authRoute.post("/login", withValidation(loginSchema, login));
-authRoute.post("/logout", protect, logout);
-authRoute.post("/refresh", refreshToken);
-authRoute.get("/me", protect, me);
-authRoute.post("/google", googleLogin);
+router.post("/login", withValidation(loginSchema, controller.login));
+router.post("/logout", protect, controller.logout);
+router.post("/refresh", controller.refreshToken);
+router.get("/me", protect, controller.me);
+router.post("/google", controller.googleLogin);
 
-export default authRoute;
+export default router;

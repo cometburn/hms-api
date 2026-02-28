@@ -1,19 +1,18 @@
 import { Router } from "express";
-import {
-  getAllRoomTypes,
-  createRoomType,
-  updateRoomType,
-  deleteRoomType,
-} from "@/controllers/roomType.controller";
+import { RoomTypeController } from "@/controllers/roomType.controller";
 
 import { roomTypeSchema } from "@/interfaces/types/roomType.types";
 import { withValidation } from "@/middlewares/validation.middleware";
 
 const roomTypeRoute = Router();
+const roomTypeController = new RoomTypeController();
 
-roomTypeRoute.get("/", getAllRoomTypes);
-roomTypeRoute.post("/", withValidation(roomTypeSchema, createRoomType));
-roomTypeRoute.put("/:id", withValidation(roomTypeSchema.partial(), updateRoomType));
-roomTypeRoute.delete("/:id", deleteRoomType);
+roomTypeRoute.get("/", roomTypeController.getAllRoomTypes);
+roomTypeRoute.post("/", withValidation(roomTypeSchema, roomTypeController.createRoomType));
+roomTypeRoute.put(
+    "/:id",
+    withValidation(roomTypeSchema.partial(), roomTypeController.updateRoomType)
+);
+roomTypeRoute.delete("/:id", roomTypeController.deleteRoomType);
 
 export default roomTypeRoute;

@@ -12,18 +12,19 @@ import orderItemRoute from "@/routes/orderItem.route";
 import dashboardRoute from "@/routes/dashboard.route";
 import productRoute from "@/routes/product.route";
 import bookingAddonRoute from "@/routes/bookingAddon.route";
+import bookingTransferRoute from "@/routes/bookingTransfer.route";
 
 import { protect } from "@/middlewares/auth.middleware";
 
 const apiRoute = Router();
 const routeVersion = "v1";
 
-
 apiRoute.use(`/${routeVersion}/auth`, authRoute);
 apiRoute.use(`/${routeVersion}/hotels`, protect, hotelRoute);
 apiRoute.use(`/${routeVersion}/rooms`, protect, roomRoute);
 apiRoute.use(`/${routeVersion}/bookings`, protect, bookingRoute);
 apiRoute.use(`/${routeVersion}/booking-addons`, protect, bookingAddonRoute);
+apiRoute.use(`/${routeVersion}/booking-transfers`, protect, bookingTransferRoute);
 apiRoute.use(`/${routeVersion}/order-items`, protect, orderItemRoute);
 apiRoute.use(`/${routeVersion}/products`, protect, productRoute);
 apiRoute.use(`/${routeVersion}/dashboard`, protect, dashboardRoute);
@@ -31,5 +32,6 @@ apiRoute.use(`/${routeVersion}/room-types`, protect, roomTypeRoute);
 apiRoute.use(`/${routeVersion}/room-rates`, protect, roomRateRoute);
 apiRoute.use(`/${routeVersion}/room-promos`, protect, roomPromoRoute);
 apiRoute.use(`/${routeVersion}/users`, protect, userRoute);
+
 
 export default apiRoute;

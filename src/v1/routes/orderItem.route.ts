@@ -1,12 +1,13 @@
-import express from "express";
-import { getOrderItems, createOrderItem, deleteOrderItem } from "@/controllers/orderItem.controller";
+import { Router } from "express";
+import { OrderItemController } from "@/controllers/orderItem.controller";
 import { withValidation } from "@/middlewares/validation.middleware";
 import { orderItemSchema } from "@/interfaces/types/orderItem.types";
 
-const orderItemRoute = express.Router();
+const orderItemRoute = Router();
+const orderItemController = new OrderItemController();
 
-orderItemRoute.get("/:orderId", getOrderItems);
-orderItemRoute.post("/", withValidation(orderItemSchema, createOrderItem));
-orderItemRoute.delete("/:orderItemId", deleteOrderItem);
+orderItemRoute.get("/:orderId", orderItemController.getOrderItems);
+orderItemRoute.post("/", withValidation(orderItemSchema, orderItemController.createOrderItem));
+orderItemRoute.delete("/:orderItemId", orderItemController.deleteOrderItem);
 
 export default orderItemRoute;
