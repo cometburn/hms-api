@@ -1,0 +1,17 @@
+model ProductHistory {
+  id          Int      @id @default(autoincrement())
+  product_id  Int
+  product     Product  @relation(fields: [product_id], references: [id])
+
+  changed_by  Int
+  user        User     @relation(fields: [changed_by], references: [id])
+
+  field       String   // "price", "name", "category", etc.
+  old_value   String
+  new_value   String
+  reason      String?
+
+  created_at  DateTime @default(now())
+
+  @@map("product_history")
+}

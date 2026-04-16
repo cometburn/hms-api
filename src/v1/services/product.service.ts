@@ -1,6 +1,5 @@
-import { Room } from "@prisma/client";
 import { ProductRepository } from "@/repositories/product.repository";
-import { ProductRequestParams } from "@/interfaces/types/product.types";
+import { Product, ProductRequestParams } from "@/interfaces/types/product.types";
 
 export class ProductService {
     private productRepository: ProductRepository;
@@ -21,12 +20,13 @@ export class ProductService {
         limit,
         search,
         category,
+        withStock,
     }: ProductRequestParams) => {
         const skip = (page - 1) * limit;
 
         const [data, total] = await Promise.all([
-            this.productRepository.getProducts(hotelId, search, category, skip, limit),
-            this.productRepository.countProducts(hotelId, search, category),
+            this.productRepository.getProducts(hotelId, search, category, withStock, skip, limit),
+            this.productRepository.countProducts(hotelId, search, category, withStock),
         ]);
 
         const totalPages = Math.ceil(total / limit);
@@ -48,7 +48,7 @@ export class ProductService {
      * @param data
      * @returns created product
      */
-    createProductService = async (hotelId: number, data: any) => {
+    createProductService = async (hotelId: number, data: Product) => {
         return await this.productRepository.createProductRepository({
             ...data,
             hotel_id: hotelId,
@@ -62,8 +62,8 @@ export class ProductService {
      * @param data
      * @returns updated product
      */
-    updateProductService = async (hotelId: number, id: number, data: Partial<Room>) => {
-        return await this.productRepository.updateProductRepository(hotelId, id, data);
+    updateProductService = async (hotelId: number, id: number, userId: number, data: Partial<Product>) => {
+        return await this.productRepository.updateProductRepository(hotelId, id, userId, data);
     };
 
     /**

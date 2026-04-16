@@ -13,6 +13,7 @@ import dashboardRoute from "@/routes/dashboard.route";
 import productRoute from "@/routes/product.route";
 import bookingAddonRoute from "@/routes/bookingAddon.route";
 import bookingTransferRoute from "@/routes/bookingTransfer.route";
+import inventoryRoute from "@/routes/inventory.route";
 
 import { protect } from "@/middlewares/auth.middleware";
 
@@ -28,6 +29,7 @@ apiRoute.use(`/${routeVersion}/booking-transfers`, protect, bookingTransferRoute
 apiRoute.use(`/${routeVersion}/order-items`, protect, orderItemRoute);
 apiRoute.use(`/${routeVersion}/products`, protect, productRoute);
 apiRoute.use(`/${routeVersion}/dashboard`, protect, dashboardRoute);
+apiRoute.use(`/${routeVersion}/inventories`, protect, inventoryRoute);
 apiRoute.use(`/${routeVersion}/room-types`, protect, roomTypeRoute);
 apiRoute.use(`/${routeVersion}/room-rates`, protect, roomRateRoute);
 apiRoute.use(`/${routeVersion}/room-promos`, protect, roomPromoRoute);

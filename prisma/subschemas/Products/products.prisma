@@ -14,6 +14,7 @@ model Product {
 
   inventory             Inventory?
   product_movements     ProductMovement[]
+  product_history       ProductHistory[]
   orderItems            OrderItem[]
 
   created_at            DateTime @default(now())

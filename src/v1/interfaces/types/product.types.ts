@@ -19,4 +19,5 @@ export interface ProductRequestParams {
     limit: number;
     search: string;
     category: string;
+    withStock: boolean;
 }

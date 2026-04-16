@@ -1,25 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import { ProductService } from "@/services/product.service";
+import { ProductMovementService } from "@/services/productMovement.service";
 import { NotFoundError } from "@/helpers/error.helper";
 
-export class ProductController {
-    private productService: ProductService;
+export class ProductMovementController {
+    private productMovementService: ProductMovementService;
 
     constructor() {
-        this.productService = new ProductService();
+        this.productMovementService = new ProductMovementService();
 
-        this.getProducts = this.getProducts.bind(this);
-        this.createProduct = this.createProduct.bind(this);
-        this.updateProduct = this.updateProduct.bind(this);
-        this.deleteProduct = this.deleteProduct.bind(this);
+        this.getProductMovements = this.getProductMovements.bind(this);
+        this.createProductMovement = this.createProductMovement.bind(this);
+        this.updateProductMovement = this.updateProductMovement.bind(this);
     }
 
     /**
-     * Gets all rooms using the user default hotel
+     * Gets all product movements
      * @param req
      * @param res
      */
-    getProducts = async (req: Request, res: Response) => {
+    getProductMovements = async (req: Request, res: Response) => {
         const user = req.user!;
         if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
@@ -31,31 +30,30 @@ export class ProductController {
         const category = (req.query.category as string) || "";
         const withStock = (req.query.stock as string) === "true";
 
-        const result = await this.productService.getProductsService({
+        const result = await this.productMovementService.getProductMovementsService({
             hotelId: user.default_hotel.id,
             page: safePage,
             limit: safeLimit,
             search,
-            category,
-            withStock
+            category
         });
 
         return res.json(result);
     };
 
     /**
-     * Creates a product  using user default hotel
+     * Creates a product movement
      * @param req
      * @param res
      */
-    createProduct = async (req: Request, res: Response, next: NextFunction) => {
+    createProductMovement = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = req.user!;
             const data = req.body;
 
             if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-            const result = await this.productService.createProductService(
+            const result = await this.productMovementService.createProductMovementService(
                 user.default_hotel.id,
                 data
             );
@@ -67,12 +65,12 @@ export class ProductController {
     };
 
     /**
-     * Updates a product
+     * Updates a product movement
      * @param req
      * @param res
      * @returns
      */
-    updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+    updateProductMovement = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = req.user!;
             const data = req.body;
@@ -82,7 +80,7 @@ export class ProductController {
                 throw new NotFoundError("User hotel missing");
             }
 
-            const result = await this.productService.updateProductService(
+            const result = await this.productMovementService.updateProductMovementService(
                 user.default_hotel.id,
                 Number(id),
                 user.id,
@@ -90,30 +88,6 @@ export class ProductController {
             );
 
             return res.status(200).json(result);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    /**
-     * Deletes product
-     * @param req
-     * @param res
-     */
-    deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user!;
-            const { id } = req.params;
-
-            if (!user.default_hotel) {
-                throw new NotFoundError("User hotel missing");
-            }
-
-            await this.productService.deleteProductService(user.default_hotel.id, Number(id));
-
-            return res.status(200).json({
-                message: "Product deleted successfully",
-            });
         } catch (err) {
             next(err);
         }
