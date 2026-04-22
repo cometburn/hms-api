@@ -1,12 +1,16 @@
 import { Room } from "@prisma/client";
 import { RoomRepository } from "@/repositories/room.repository";
 import { RequestParams } from "@/interfaces";
+import { BookingRepository } from "@/repositories/booking.repository";
+import { BadRequestError } from "@/helpers/error.helper";
 
 export class RoomService {
     private roomRepository: RoomRepository;
+    private bookingRepository: BookingRepository;
 
     constructor() {
         this.roomRepository = new RoomRepository();
+        this.bookingRepository = new BookingRepository();
     }
     /**
      * Gets all rooms
@@ -76,6 +80,12 @@ export class RoomService {
      * @returns updated room
      */
     updateRoom = async (hotelId: number, id: number, data: Partial<Room>) => {
+        const booking = await this.bookingRepository.findBookingByRoomId(hotelId, id)
+
+        if (booking && booking?.status === 'check_in') {
+            throw new BadRequestError("Failed to update room, booking exists.");
+        }
+
         return await this.roomRepository.updateRoomRepository(hotelId, id, data);
     };
 

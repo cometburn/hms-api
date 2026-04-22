@@ -9,12 +9,21 @@ export class OrderService {
     }
 
     /**
-     * Gets all Orders
+     * Get Orders
      * @param bookingId
      * @returns
      */
-    getOrder = async ({ bookingId }: OrderRequestParams) => {
+    getOrders = async ({ bookingId }: OrderRequestParams) => {
         return await this.orderRepo.getOrders(bookingId);
+    };
+
+    /**
+     * Get Order
+     * @param bookingId
+     * @returns
+     */
+    getOrder = async (bookingId: number) => {
+        return await this.orderRepo.getOrder(bookingId);
     };
 
     /**
@@ -25,6 +34,16 @@ export class OrderService {
     createOrder = async (data: Order) => {
         return await this.orderRepo.createOrder(data);
     };
+
+    /**
+     * Update Order 
+     * @param data
+     * @returns updated Order
+     */
+    updateOrder = async (hotelId: number, orderId: number, data: Partial<Order>) => {
+        return await this.orderRepo.updateOrder(hotelId, orderId, data);
+    };
+
 
     /**
      * Deletes Order

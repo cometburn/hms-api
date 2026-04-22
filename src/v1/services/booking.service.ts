@@ -4,12 +4,24 @@ import { RequestParams } from "@/interfaces";
 import { compareObjects } from "@/utils/object.utils";
 import { BadRequestError, NotFoundError } from "@/helpers/error.helper";
 import { BOOKING_EDIT_WINDOW_MINUTES } from "@/constants";
+import { OrderItemService } from "@/services/orderItem.service";
+import { InventoryService } from "./inventory.service";
+import { OrderService } from "./order.service";
+import { ProductMovementService } from "./productMovement.service";
 
 export class BookingService {
     private bookingRepo: BookingRepository;
+    private orderItemService: OrderItemService;
+    private inventoryService: InventoryService;
+    private orderService: OrderService;
+    private productMovementService: ProductMovementService;
 
     constructor() {
         this.bookingRepo = new BookingRepository();
+        this.orderItemService = new OrderItemService();
+        this.inventoryService = new InventoryService();
+        this.orderService = new OrderService();
+        this.productMovementService = new ProductMovementService();
     }
 
     /**
@@ -57,7 +69,7 @@ export class BookingService {
      * @param data
      * @returns
      */
-    async updateBooking(hotelId: number, bookingId: number, data: any) {
+    async updateBooking(hotelId: number, userId: number, bookingId: number, data: any) {
         const booking = await this.bookingRepo.findBookingById(hotelId, bookingId);
         if (!booking) throw new NotFoundError("Booking not found");
 
@@ -86,6 +98,47 @@ export class BookingService {
                         throw new BadRequestError(
                             `Booking start time is over ${BOOKING_EDIT_WINDOW_MINUTES} minutes`
                         );
+                    }
+                }
+                break;
+
+            case "check_out":
+                const order = await this.orderService.getOrder(bookingId);
+                if (order) {
+                    await this.orderService.updateOrder(hotelId, order.id, {
+                        status: "completed",
+                    });
+
+                    const orderItems = await this.orderItemService.getOrderItems(order.id);
+                    for (const orderItem of orderItems) {
+                        const inventory = await this.inventoryService.getInventoryByProductId(
+                            hotelId,
+                            orderItem.product_id
+                        );
+
+                        if (inventory) {
+                            const inventoryQty = inventory.quantity;
+                            const orderItemQty = orderItem.quantity;
+                            const inventoryReservedQty = inventory.reserved_qty;
+                            const expectedQty = inventoryQty - orderItemQty;
+                            const expectedReservedQty = inventoryReservedQty - orderItemQty;
+
+                            await this.inventoryService.updateInventory(hotelId, inventory.id, {
+                                quantity: expectedQty,
+                                reserved_qty: expectedReservedQty,
+                            });
+
+                            await this.productMovementService.createProductMovementService(userId, {
+                                user_id: userId,
+                                product_id: orderItem.product_id,
+                                quantity: orderItemQty,
+                                unit_cost: orderItem.price,
+                                type: "booking_order",
+                                note: `Order from booking:${bookingId} order:${order.id} order_item:${orderItem.id} quantity:${orderItem.quantity}`,
+                            });
+
+                            console.log('product movement created!')
+                        }
                     }
                 }
                 break;

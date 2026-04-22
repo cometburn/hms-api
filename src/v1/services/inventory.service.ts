@@ -14,7 +14,7 @@ export class InventoryService {
      * @param search
      * @returns
      */
-    getInventoriesService = async ({
+    getInventories = async ({
         hotelId,
         page,
         limit,
@@ -39,5 +39,55 @@ export class InventoryService {
                 totalPages,
             },
         };
+    };
+
+    /**
+     * Gets Inventory
+     * @param hotelId
+     * @param inventoryId
+     * @returns updated Inventory
+     */
+    getInventory = async (hotelId: number, inventoryId: number) => {
+        return await this.inventoryRepository.getInventory(hotelId, inventoryId);
+    };
+
+    /**
+     * Gets Inventory by Product Id
+     * @param hotelId
+     * @param productId
+     * @returns updated Inventory
+     */
+    getInventoryByProductId = async (hotelId: number, productId: number) => {
+        return await this.inventoryRepository.getInventoryByProductId(hotelId, productId);
+    };
+
+
+    /**
+     * Updates Inventory
+     * @param hotelId
+     * @param inventoryId
+     * @param data
+     * @returns updated Inventory
+     */
+    updateInventory = async (hotelId: number, inventoryId: number, data: Partial<Inventory>) => {
+        return await this.inventoryRepository.updateInventory(hotelId, inventoryId, data);
+    };
+
+    /**
+     * Creates Inventory
+     * @param data
+     * @returns created Inventory
+     */
+    createInventory = async (data: Inventory) => {
+        return await this.inventoryRepository.createInventory(data);
+    };
+
+    /**
+     * Deletes Inventory
+     * @param hotelId
+     * @param inventoryId
+     */
+    deleteInventory = async (hotelId: number, inventoryId: number) => {
+        return await this.inventoryRepository.deleteInventory(hotelId, inventoryId);
     };
 }

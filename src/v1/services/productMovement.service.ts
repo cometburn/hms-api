@@ -1,5 +1,5 @@
 import { ProductMovementRepository } from "@/repositories/productMovement.repository";
-import { Product, ProductRequestParams } from "@/interfaces/types/product.types";
+import { ProductMovement, ProductMovementRequestParams } from "@/interfaces/types/productMovement.types";
 
 export class ProductMovementService {
     private productMovementRepository: ProductMovementRepository;
@@ -19,14 +19,13 @@ export class ProductMovementService {
         page,
         limit,
         search,
-        category,
-        withStock,
-    }: ProductRequestParams) => {
+        type,
+    }: ProductMovementRequestParams) => {
         const skip = (page - 1) * limit;
 
         const [data, total] = await Promise.all([
-            this.productMovementRepository.getProductMovements(hotelId, search, category, withStock, skip, limit),
-            this.productMovementRepository.countProductMovements(hotelId, search, category, withStock),
+            this.productMovementRepository.getProductMovements(hotelId, search, type, skip, limit),
+            this.productMovementRepository.countProductMovements(hotelId, search, type),
         ]);
 
         const totalPages = Math.ceil(total / limit);
@@ -48,21 +47,10 @@ export class ProductMovementService {
      * @param data
      * @returns created product movement
      */
-    createProductMovementService = async (hotelId: number, data: Product) => {
+    createProductMovementService = async (userId: number, data: ProductMovement) => {
         return await this.productMovementRepository.createProductMovementRepository({
             ...data,
-            hotel_id: hotelId,
+            user_id: userId,
         });
-    };
-
-    /**
-     * Updates a product movement service
-     * @param hotelId
-     * @param id
-     * @param data
-     * @returns updated product movement
-     */
-    updateProductMovementService = async (hotelId: number, id: number, userId: number, data: Partial<Product>) => {
-        return await this.productMovementRepository.updateProductMovementRepository(hotelId, id, userId, data);
     };
 }

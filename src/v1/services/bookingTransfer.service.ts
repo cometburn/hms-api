@@ -9,6 +9,7 @@ import { BOOKING_EDIT_WINDOW_MINUTES } from "@/constants";
 import { socketService } from "@/sockets/socket.service";
 import { TransferBooking } from "@/interfaces/types/booking.types";
 import { Order } from "@/interfaces/types/order.types";
+import { OrderItem } from "@/interfaces/types/orderItem.types";
 
 export class BookingTransferService {
     private bookingRepo: BookingRepository;
@@ -92,7 +93,6 @@ export class BookingTransferService {
 
         // Copy booking charges if they exist
         if (data.booking_charges) {
-            console.log('data.booking_charges', data.booking_charges)
             await this.copyBookingCharges(
                 data.booking_charges ?? [],
                 newBooking.id,
@@ -151,7 +151,7 @@ export class BookingTransferService {
     }
 
     private async copyOrderWithItems(
-        originalOrder: Order,
+        originalOrder: Order & { order_items: OrderItem[] },
         newBookingId: number,
         originalBookingId: number
     ) {
