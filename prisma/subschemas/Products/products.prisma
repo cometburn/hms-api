@@ -1,24 +1,25 @@
 model Product {
-  id                    Int      @id @default(autoincrement())
-  hotel_id              Int
-  hotel                 Hotel    @relation(fields: [hotel_id], references: [id])
+  id                              Int      @id @default(autoincrement())
+  hotel_id                        Int
+  hotel                           Hotel    @relation(fields: [hotel_id], references: [id])
 
-  name                  String
-  sku                   String?
-  category              String?
-  price                 Float
+  name                            String
+  sku                             String?
+  category                        String?
+  price                           Float
 
-  track_stock           Boolean  @default(true)
-  unit                  String?
-  is_active             Boolean  @default(true)
+  track_stock                     Boolean  @default(true)
+  unit                            String?
+  is_active                       Boolean  @default(true)
 
-  inventory             Inventory?
-  product_movements     ProductMovement[]
-  product_history       ProductHistory[]
-  orderItems            OrderItem[]
+  inventory                       Inventory?
+  product_movements               ProductMovement[]
+  product_history                 ProductHistory[]
+  orderItems                      OrderItem[]
+  booking_addons                  BookingAddon[]
 
-  created_at            DateTime @default(now())
-  updated_at            DateTime @updatedAt
+  created_at                      DateTime @default(now())
+  updated_at                      DateTime @updatedAt
 
   @@map("products")
 }

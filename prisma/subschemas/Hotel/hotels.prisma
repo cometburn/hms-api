@@ -5,6 +5,7 @@ model Hotel {
 
   room_type             RoomType[]
   room_rates            RoomRate[]
+  room_promoss          RoomPromo[]
   bookings              Booking[]
   products              Product[]
   rooms                 Room[]

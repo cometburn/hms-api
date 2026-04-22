@@ -15,7 +15,11 @@ model User {
 
   subscriptions                   Subscription[]
   bookings                        Booking[]
+  booking_addons                  BookingAddon[]
+  booking_charges                 BookingCharge[]
   product_movements               ProductMovement[]
+  product_histories               ProductHistory[]
+  order_items                     OrderItem[]
   hotels                          UserHotel[]
   owned_hotels                    UserHotel[] @relation("OwnerUser")
 

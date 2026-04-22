@@ -30,6 +30,7 @@ model Booking {
   orders                          Order?
   booking_addons                  BookingAddon[]
   booking_charges                 BookingCharge[]
+  product_movements               ProductMovement[]
 
   created_at                      DateTime  @default(now())
   updated_at                      DateTime  @updatedAt

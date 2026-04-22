@@ -1,4 +1,4 @@
-//🧩Don't Edit this file.✨Generated in Mon Apr 13 2026 15:37:20 GMT+0800 (Philippine Standard Time)✨
+//🧩Don't Edit this file.✨Generated in Tue Apr 21 2026 13:26:35 GMT+0800 (Philippine Standard Time)✨
 model BookingAddon {
   id         Int     @id @default(autoincrement())
   booking_id Int
@@ -81,9 +81,10 @@ model Booking {
   transfer_reason             String?
   original_room_id            Int? // Store original room for reference
 
-  orders          Order?
-  booking_addons  BookingAddon[]
-  booking_charges BookingCharge[]
+  orders            Order?
+  booking_addons    BookingAddon[]
+  booking_charges   BookingCharge[]
+  product_movements ProductMovement[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -100,16 +101,16 @@ model Hotel {
   name    String
   address String
 
-  room_type  RoomType[]
-  room_rates RoomRate[]
-  bookings   Booking[]
-  products   Product[]
-  rooms      Room[]
-  orders     Order[]
+  room_type    RoomType[]
+  room_rates   RoomRate[]
+  room_promoss RoomPromo[]
+  bookings     Booking[]
+  products     Product[]
+  rooms        Room[]
+  orders       Order[]
 
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
-  RoomPromo  RoomPromo[]
   UserHotel  UserHotel[]
 
   @@map("hotels")
@@ -153,6 +154,8 @@ model OrderItem {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  product_movements ProductMovement[]
+
   @@index([order_id])
   @@index([transferred_from_booking_id])
   @@map("order_items")
@@ -174,7 +177,8 @@ model Order {
   // Transfer tracking
   transferred_from_booking_id Int?
 
-  order_items OrderItem[]
+  order_items       OrderItem[]
+  product_movements ProductMovement[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -210,6 +214,15 @@ model ProductMovement {
   product_id Int
   product    Product @relation(fields: [product_id], references: [id])
 
+  booking_id Int?
+  booking    Booking? @relation(fields: [booking_id], references: [id])
+
+  order_id Int?
+  order    Order? @relation(fields: [order_id], references: [id])
+
+  order_item_id Int?
+  orderItem     OrderItem? @relation(fields: [order_item_id], references: [id])
+
   type      String @default("in")
   quantity  Int
   unit_cost Float
@@ -241,10 +254,10 @@ model Product {
   product_movements ProductMovement[]
   product_history   ProductHistory[]
   orderItems        OrderItem[]
+  booking_addons    BookingAddon[]
 
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @updatedAt
-  BookingAddon BookingAddon[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("products")
 }
@@ -329,10 +342,10 @@ model Room {
   notes              String?
   bookings           Booking[]
   booking_charges    BookingCharge[]
+  booking_addons     BookingAddon[]
 
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @updatedAt
-  BookingAddon BookingAddon[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@unique([hotel_id, name])
   @@map("rooms")
@@ -401,16 +414,16 @@ model User {
 
   subscriptions     Subscription[]
   bookings          Booking[]
+  booking_addons    BookingAddon[]
+  booking_charges   BookingCharge[]
   product_movements ProductMovement[]
+  product_histories ProductHistory[]
+  order_items       OrderItem[]
   hotels            UserHotel[]
   owned_hotels      UserHotel[]       @relation("OwnerUser")
 
-  created_at     DateTime         @default(now())
-  updated_at     DateTime         @updatedAt
-  BookingAddon   BookingAddon[]
-  BookingCharge  BookingCharge[]
-  OrderItem      OrderItem[]
-  ProductHistory ProductHistory[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("users")
 }

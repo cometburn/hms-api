@@ -12,6 +12,7 @@ model Room {
   notes                               String?
   bookings                            Booking[]
   booking_charges                     BookingCharge[]
+  booking_addons                      BookingAddon[]
 
   created_at                          DateTime @default(now())
   updated_at                          DateTime @updatedAt

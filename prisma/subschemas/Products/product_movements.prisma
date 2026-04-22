@@ -7,6 +7,15 @@ model ProductMovement {
   product_id                    Int
   product                       Product  @relation(fields: [product_id], references: [id])
 
+  booking_id                    Int?
+  booking                       Booking?  @relation(fields: [booking_id], references: [id])
+
+  order_id                      Int?
+  order                         Order?  @relation(fields: [order_id], references: [id])
+
+  order_item_id                 Int?
+  orderItem                     OrderItem?  @relation(fields: [order_item_id], references: [id])
+
   type                          String  @default("in")
   quantity                      Int
   unit_cost                     Float
