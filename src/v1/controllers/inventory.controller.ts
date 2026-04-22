@@ -27,7 +27,7 @@ export class InventoryController {
         const search = (req.query.search as string) || "";
         const category = (req.query.category as string) || "";
 
-        const result = await this.inventoryService.getInventoriesService({
+        const result = await this.inventoryService.getInventories({
             hotelId: user.default_hotel.id,
             page: safePage,
             limit: safeLimit,

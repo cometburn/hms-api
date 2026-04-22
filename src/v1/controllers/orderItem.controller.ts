@@ -20,9 +20,8 @@ export class OrderItemController {
      * @param res
      */
     getOrderItems = async (req: Request, res: Response) => {
-        const result = await this.orderItemService.getOrderItemService({
-            orderId: Number(req.params.orderId),
-        });
+        const orderId = req.params.orderId;
+        const result = await this.orderItemService.getOrderItems(Number(orderId));
 
         return res.json(result);
     };
@@ -39,7 +38,7 @@ export class OrderItemController {
 
             if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-            const result = await this.orderItemService.createOrderItemService({
+            const result = await this.orderItemService.createOrderItem({
                 ...data,
                 user_id: user.id,
             });
@@ -70,7 +69,7 @@ export class OrderItemController {
                 throw new NotFoundError("User hotel missing");
             }
 
-            await this.orderItemService.deleteOrderItemService(Number(orderItemId));
+            await this.orderItemService.deleteOrderItem(user.default_hotel.id, Number(orderItemId));
 
             return res.status(200).json({
                 message: "Order item deleted successfully",
