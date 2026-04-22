@@ -1,6 +1,6 @@
 import prisma from "@/helpers/prisma.helper";
-import { Prisma } from "@prisma/client";
-import { Product } from "@/interfaces/types/product.types";
+import { ProductMovement } from "@/interfaces/types/productMovement.types";
+
 
 export class ProductMovementRepository {
     /**
@@ -14,40 +14,40 @@ export class ProductMovementRepository {
     getProductMovements = async (
         hotelId: number,
         search: string,
-        category: string,
+        type: string,
         skip: number,
         limit: number
     ) => {
-
-        const where: Prisma.ProductWhereInput = {
-            hotel_id: hotelId,
-        };
-
-        if (search) {
-            where.OR = [
-                { name: { contains: search, mode: "insensitive" } },
-                { sku: { contains: search, mode: "insensitive" } },
-                { category: { contains: search, mode: "insensitive" } },
-            ];
-        }
-
-        if (category) {
-            where.category = category;
-        }
-
-        return await prisma.product.findMany({
-            where: where,
-            orderBy: { name: "asc" },
+        return await prisma.productMovement.findMany({
             skip,
             take: limit,
-            include: {
-                product_history: {
-                    orderBy: { created_at: "desc" },
-                    include: {
-                        user: { select: { first_name: true, last_name: true } },
-                    },
+            orderBy: [
+                { created_at: "desc" },
+                { product: { name: "asc" } },
+            ],
+            where: {
+                product: {
+                    hotel_id: hotelId,
+                    ...(search && { name: { contains: search, mode: "insensitive" } }),
+                    ...(type && { type: { contains: type, mode: "insensitive" } }),
                 },
-                inventory: true,
+            },
+            include: {
+                product: true,
+                user: true,
+                booking: {
+                    include: {
+                        room: true,
+                        room_rate: true,
+                        user: true
+                    }
+                },
+                order: true,
+                orderItem: {
+                    include: {
+                        user: true
+                    }
+                }
             },
         });
     };
@@ -58,25 +58,15 @@ export class ProductMovementRepository {
      * @param search
      * @returns
      */
-    countProductMovements = async (hotelId: number, search: string, category: string) => {
-        const where: Prisma.ProductWhereInput = {
-            hotel_id: hotelId,
-        };
-
-        if (search) {
-            where.OR = [
-                { name: { contains: search, mode: "insensitive" } },
-                { sku: { contains: search, mode: "insensitive" } },
-                { category: { contains: search, mode: "insensitive" } },
-            ];
-        }
-
-        if (category) {
-            where.category = category;
-        }
-
-        return await prisma.product.count({
-            where: where,
+    countProductMovements = async (hotelId: number, search: string, type: string) => {
+        return await prisma.inventory.count({
+            where: {
+                product: {
+                    hotel_id: hotelId,
+                    ...(search && { name: { contains: search, mode: "insensitive" } }),
+                    ...(type && { type: { contains: type, mode: "insensitive" } }),
+                },
+            },
         });
     };
 
@@ -85,71 +75,44 @@ export class ProductMovementRepository {
      * @param data
      * @returns
      */
-    createProductMovementRepository = async (data: any) => {
+    createProductMovementRepository = async (data: ProductMovement) => {
         return prisma.$transaction(async (tx) => {
-            const product = await tx.product.create({
-                data
+            console.log('data', data)
+            const productMovement = await tx.productMovement.create({
+                data: {
+                    user_id: data.user_id,
+                    product_id: data.product_id,
+                    type: data.type,
+                    quantity: data.quantity,
+                    unit_cost: data.unit_cost,
+                    source: data.source,
+                    note: data.note,
+                    booking_id: data.booking_id,
+                    order_id: data.order_id,
+                    order_item_id: data.order_item_id,
+                }
             });
 
-            if (product.track_stock) {
-                await tx.inventory.create({
-                    data: {
-                        product_id: product.id,
-                        quantity: 0,
-                        reserved_qty: 0,
-                    },
-                });
+            const inventory = await tx.inventory.findUnique({
+                where: {
+                    product_id: data.product_id
+                }
+            });
+
+            if (inventory) {
+                if (data.type === "in") {
+                    await tx.inventory.update({
+                        where: {
+                            product_id: data.product_id
+                        },
+                        data: {
+                            quantity: inventory.quantity + data.quantity
+                        }
+                    });
+                }
             }
 
-            return product;
+            return productMovement;
         });
-    };
-
-    /**
-     * Updates a product
-     * @param hotelId
-     * @param id
-     * @param data
-     * @returns
-     */
-    updateProductMovementRepository = async (hotelId: number, id: number, userId: number, data: Partial<Product>) => {
-        const current = await prisma.product.findUniqueOrThrow({
-            where: { id, hotel_id: hotelId },
-        });
-
-        // const historyLogs = TRACKED_FIELDS
-        //     .filter((field) => {
-        //         const incoming = data[field];
-        //         const existing = current[field];
-        //         return incoming !== undefined && incoming !== existing;
-        //     })
-        //     .map((field) => ({
-        //         product_id: id,
-        //         changed_by: userId,
-        //         field,
-        //         old_value: current[field] != null ? String(current[field]) : "",
-        //         new_value: data[field] != null ? String(data[field]) : "",
-        //     }));
-
-        // return await prisma.$transaction(async (tx) => {
-        //     const updated = await tx.product.update({
-        //         where: { id, hotel_id: hotelId },
-        //         data,
-        //     });
-
-        //     if (historyLogs.length > 0) {
-        //         await tx.productHistory.createMany({ data: historyLogs });
-        //     }
-
-        //     if (data.track_stock === true && !current.track_stock) {
-        //         await tx.inventory.upsert({
-        //             where: { product_id: id },
-        //             create: { product_id: id, quantity: 0, reserved_qty: 0 },
-        //             update: {},
-        //         });
-        //     }
-
-        //     return updated;
-        // });
     };
 }

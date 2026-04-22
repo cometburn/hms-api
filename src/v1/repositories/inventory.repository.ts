@@ -22,7 +22,6 @@ export class InventoryRepository {
             skip,
             take: limit,
             orderBy: [
-                { quantity: "asc" },
                 { product: { name: "asc" } },
             ],
             where: {
@@ -63,11 +62,41 @@ export class InventoryRepository {
     };
 
     /**
+     * Gets Inventory
+     * @param hotelId
+     * @param inventoryId
+     * @returns updated Inventory
+     */
+    getInventory = async (hotelId: number, inventoryId: number) => {
+        return await prisma.inventory.findUnique({
+            where: {
+                id: inventoryId,
+                product: { hotel_id: hotelId }
+            },
+        });
+    };
+
+    /**
+     * Gets Inventory by Product Id
+     * @param hotelId
+     * @param productId
+     * @returns updated Inventory
+     */
+    getInventoryByProductId = async (hotelId: number, productId: number) => {
+        return await prisma.inventory.findFirst({
+            where: {
+                product_id: productId,
+                product: { hotel_id: hotelId }
+            },
+        });
+    };
+
+    /**
      * Creates a inventory
      * @param data
      * @returns
      */
-    createInventoryRepository = async (data: any) => {
+    createInventory = async (data: any) => {
         return await prisma.inventory.create({ data });
     };
 
@@ -78,7 +107,7 @@ export class InventoryRepository {
      * @param data
      * @returns
      */
-    updateInventoryRepository = async (hotelId: number, id: number, data: Partial<Inventory>) => {
+    updateInventory = async (hotelId: number, id: number, data: Partial<Inventory>) => {
         return prisma.inventory.update({
             where: {
                 id,
@@ -94,7 +123,7 @@ export class InventoryRepository {
      * @param id
      * @returns
      */
-    deleteInventoryRepository = async (hotelId: number, id: number) => {
+    deleteInventory = async (hotelId: number, id: number) => {
         return prisma.inventory.delete({
             where: {
                 id,

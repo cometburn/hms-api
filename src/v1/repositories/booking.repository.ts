@@ -138,6 +138,20 @@ export class BookingRepository {
     }
 
     /**
+     * Find Booking by Room Id
+     * @param hotelId 
+     * @param roomId 
+     */
+    async findBookingByRoomId(hotelId: number, roomId: number) {
+        return await prisma.booking.findFirst({
+            where: {
+                hotel_id: hotelId,
+                room_id: roomId,
+            },
+        })
+    }
+
+    /**
      * Update Booking by Id
      * @param hotelId
      * @param bookingId

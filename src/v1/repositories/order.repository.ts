@@ -17,12 +17,39 @@ export class OrderRepository {
     };
 
     /**
+     * Get Order
+     * @param bookingId
+     * @returns order
+     */
+    getOrder = async (bookingId: number) => {
+        return await prisma.order.findUnique({
+            where: {
+                booking_id: bookingId,
+            },
+        });
+    };
+
+    /**
      * Create Order service
      * @param data
      * @returns created Order
      */
     createOrder = async (data: Order) => {
         return await prisma.order.create({
+            data,
+        });
+    };
+
+    /**
+     * Update Order
+     * @param id
+     */
+    updateOrder = async (hotelId: number, orderId: number, data: Partial<Order>) => {
+        return await prisma.order.update({
+            where: {
+                id: orderId,
+                hotel_id: hotelId,
+            },
             data,
         });
     };
