@@ -20,7 +20,7 @@ export const BOOKING_STATUS = [
 export const PAYMENT_STATUS = ["paid", "unpaid", "refunded", "cancelled"];
 export const PAYMENT_TYPE = ["cash", "credit_card", "debit_card", "bank", "e-wallet", "cancelled"];
 export const ORDER_STATUS = ["pending", "confirmed", "cancelled", "completed"];
-export const PRODUCT_MOVEMENT_TYPE = ["in", "out", "adjustment"];
+export const PRODUCT_MOVEMENT_TYPE = ["in", "out", "adjustment", "booking_order", "order"];
 
 export const BOOKING_EDIT_WINDOW_MINUTES = 15;
 export const PRODUCT_CATEGORY = ["product", "service", "room_addon"];
