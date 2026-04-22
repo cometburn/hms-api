@@ -2,7 +2,6 @@ import { z } from "zod";
 import { BOOKING_STATUS, PAYMENT_STATUS, PAYMENT_TYPE } from "@/constants/index";
 import { bookingChargeSchema } from "./bookingCharge.types";
 import { bookingAddonSchema } from "./bookingAddon.types";
-import { orderSchema } from "./order.types";
 import { orderItemSchema } from "./orderItem.types";
 
 export const bookingSchema = z
