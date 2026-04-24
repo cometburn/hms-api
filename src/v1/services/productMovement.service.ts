@@ -53,4 +53,15 @@ export class ProductMovementService {
             user_id: userId,
         });
     };
+
+    /**
+     * Updates a product movement service
+     * @param hotelId
+     * @param id
+     * @param data
+     * @returns updated product movement
+     */
+    updateProductMovementService = async (hotelId: number, productMovementId: number, userId: number, data: Partial<ProductMovement>) => {
+        return await this.productMovementRepository.updateProductMovementRepository(hotelId, productMovementId, userId, data);
+    };
 }

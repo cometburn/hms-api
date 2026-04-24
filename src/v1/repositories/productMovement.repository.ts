@@ -115,4 +115,50 @@ export class ProductMovementRepository {
             return productMovement;
         });
     };
+
+    /**
+     * Updates a product
+     * @param hotelId
+     * @param id
+     * @param data
+     * @returns
+     */
+    updateProductMovementRepository = async (hotelId: number, productMovementId: number, userId: number, data: Partial<ProductMovement>) => {
+        return prisma.$transaction(async (tx) => {
+            // Get the original movement before updating
+            const originalMovement = await tx.productMovement.findUnique({
+                where: { id: productMovementId }
+            });
+
+            if (!originalMovement) throw new Error("Product movement not found");
+
+            const productMovement = await tx.productMovement.update({
+                where: {
+                    id: productMovementId,
+                    product: { hotel_id: hotelId }
+                },
+                data: {
+                    ...data,
+                    user_id: userId,
+                }
+            });
+
+            const inventory = await tx.inventory.findUnique({
+                where: { product_id: productMovement.product_id }
+            });
+
+            if (inventory) {
+                // Reverse the original movement first, then apply the new one
+                const reversedQty = inventory.quantity - originalMovement.quantity; // undo old
+                const newQty = reversedQty + productMovement.quantity;              // apply new
+
+                await tx.inventory.update({
+                    where: { product_id: productMovement.product_id },
+                    data: { quantity: newQty }
+                });
+            }
+
+            return productMovement;
+        });
+    };
 }

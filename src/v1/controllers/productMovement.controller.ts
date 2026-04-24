@@ -10,6 +10,7 @@ export class ProductMovementController {
 
         this.getProductMovements = this.getProductMovements.bind(this);
         this.createProductMovement = this.createProductMovement.bind(this);
+        this.updateProductMovement = this.updateProductMovement.bind(this);
     }
 
     /**
@@ -49,9 +50,10 @@ export class ProductMovementController {
             const user = req.user!;
             const data = req.body;
 
+            console.log('user', user)
+
             if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-            console.log('user', user)
 
             const result = await this.productMovementService.createProductMovementService(
                 user.id,
@@ -59,6 +61,35 @@ export class ProductMovementController {
             );
 
             return res.status(201).json(result);
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    /**
+     * Updates a product movement
+     * @param req
+     * @param res
+     * @returns
+     */
+    updateProductMovement = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = req.user!;
+            const data = req.body;
+            const { id } = req.params;
+
+            if (!user.default_hotel) {
+                throw new NotFoundError("User hotel missing");
+            }
+
+            const result = await this.productMovementService.updateProductMovementService(
+                user.default_hotel.id,
+                Number(id),
+                user.id,
+                data
+            );
+
+            return res.status(200).json(result);
         } catch (err) {
             next(err);
         }
