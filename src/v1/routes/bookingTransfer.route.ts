@@ -6,10 +6,48 @@ import { bookingSchema, transferBookingSchema } from "@/interfaces/types/booking
 const router = Router();
 const controller = new BookingTransferController();
 
-// POST /api/bookings/transfer
+/**
+ * @openapi
+ * /api/v1/booking-transfers:
+ *   post:
+ *     summary: Transfer a booking
+ *     tags:
+ *       - Booking Transfers
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *     responses:
+ *       200:
+ *         description: Booking transferred successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ */
 router.post("/", withValidation(transferBookingSchema, controller.transferBooking));
 
-// GET /api/bookings/:bookingId/transfer-history
+/**
+ * @openapi
+ * /api/v1/booking-transfers/:bookingId/history:
+ *   get:
+ *     summary: Get booking transfer history
+ *     tags:
+ *       - Booking Transfers
+ *     responses:
+ *       200:
+ *         description: Booking transfer history fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ */
 router.get("/:bookingId/history", (req, res) => controller.getTransferHistory(req, res));
 
 export default router;
