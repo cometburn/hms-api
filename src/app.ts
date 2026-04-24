@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
+import { setupSwagger } from "@/utils/swagger.utils";
 
 // Configurations
 import { configureMiddleware } from "@/config/middleware.config";
@@ -55,6 +56,9 @@ app.get("/", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api", apiRoute);
+
+// Swagger docs
+setupSwagger(app);
 
 // Catch 404
 app.use((req: Request, res: Response, next: NextFunction) => {
