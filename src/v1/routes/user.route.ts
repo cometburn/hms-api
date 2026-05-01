@@ -1,18 +1,23 @@
 import { Router } from "express";
 import { switchHotelSchema } from "@/interfaces/types/hotel.types";
 import { withValidation } from "@/middlewares/validation.middleware";
-import { UserController } from "@/controllers/user.controller";
+import { switchDefaultHotel } from "@/controllers/user.controller";
 
 const userRoute = Router();
-const userController = new UserController();
 
 /**
  * @openapi
- * /api/v1/users/hotel/default:
+ * /api/v1/users/hotel/{id}/switch:
  *   post:
  *     summary: Switch default hotel
  *     tags:
  *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -28,9 +33,6 @@ const userController = new UserController();
  *                 data:
  *                   type: object
  */
-userRoute.post(
-    "/hotel/default",
-    withValidation(switchHotelSchema, userController.switchDefaultHotel)
-);
+userRoute.post("/hotel/:hotel_id/switch", switchDefaultHotel);
 
 export default userRoute;

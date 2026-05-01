@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { DashboardController } from "@/controllers/dashboard.controller";
+import { getDashboardRooms } from "@/controllers/dashboard.controller";
 
 const router = Router();
-const controller = new DashboardController();
 
 /**
  * @openapi
@@ -55,6 +54,6 @@ const controller = new DashboardController();
  *                       type: integer
  *                       format: int32
  */
-router.get("/", controller.getDashboardRooms);
+router.get("/", getDashboardRooms);
 
 export default router;

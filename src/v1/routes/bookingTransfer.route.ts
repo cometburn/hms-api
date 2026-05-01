@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { BookingTransferController } from "../controllers/bookingTransfer.controller";
 import { withValidation } from "@/middlewares/validation.middleware";
-import { bookingSchema, transferBookingSchema } from "@/interfaces/types/booking.types";
+
+import { transferBooking, getTransferHistory } from "../controllers/bookingTransfer.controller";
+import { transferBookingSchema } from "@/interfaces/types/booking.types";
 
 const router = Router();
-const controller = new BookingTransferController();
 
 /**
  * @openapi
@@ -28,7 +28,7 @@ const controller = new BookingTransferController();
  *                 data:
  *                   type: object
  */
-router.post("/", withValidation(transferBookingSchema, controller.transferBooking));
+router.post("/", withValidation(transferBookingSchema, transferBooking));
 
 /**
  * @openapi
@@ -48,6 +48,6 @@ router.post("/", withValidation(transferBookingSchema, controller.transferBookin
  *                 data:
  *                   type: object
  */
-router.get("/:bookingId/history", (req, res) => controller.getTransferHistory(req, res));
+router.get("/:bookingId/history", (req, res) => getTransferHistory(req, res));
 
 export default router;

@@ -1,121 +1,108 @@
 import { NextFunction, Request, Response } from "express";
-import { ProductService } from "@/services/product.service";
+import * as  ProductService from "@/services/product.service";
 import { NotFoundError } from "@/helpers/error.helper";
 
-export class ProductController {
-    private productService: ProductService;
+/**
+ * Gets all rooms using the user default hotel
+ * @param req
+ * @param res
+ */
+export const getProducts = async (req: Request, res: Response) => {
+    const user = req.user!;
+    if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-    constructor() {
-        this.productService = new ProductService();
+    const page = Number(req.query.page);
+    const limit = Number(req.query.limit);
+    const safePage = !isNaN(page) ? page : 1;
+    const safeLimit = !isNaN(limit) ? limit : 10;
+    const search = (req.query.search as string) || "";
+    const category = (req.query.category as string) || "";
+    const withStock = (req.query.stock as string) === "true";
 
-        this.getProducts = this.getProducts.bind(this);
-        this.createProduct = this.createProduct.bind(this);
-        this.updateProduct = this.updateProduct.bind(this);
-        this.deleteProduct = this.deleteProduct.bind(this);
-    }
+    const result = await ProductService.getProducts({
+        hotelId: user.default_hotel.id,
+        page: safePage,
+        limit: safeLimit,
+        search,
+        category,
+        withStock
+    });
 
-    /**
-     * Gets all rooms using the user default hotel
-     * @param req
-     * @param res
-     */
-    getProducts = async (req: Request, res: Response) => {
+    return res.json(result);
+};
+
+/**
+ * Creates a product  using user default hotel
+ * @param req
+ * @param res
+ */
+export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
         const user = req.user!;
+        const data = req.body;
+
         if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-        const page = Number(req.query.page);
-        const limit = Number(req.query.limit);
-        const safePage = !isNaN(page) ? page : 1;
-        const safeLimit = !isNaN(limit) ? limit : 10;
-        const search = (req.query.search as string) || "";
-        const category = (req.query.category as string) || "";
-        const withStock = (req.query.stock as string) === "true";
+        const result = await ProductService.createProduct(
+            user.default_hotel.id,
+            data
+        );
 
-        const result = await this.productService.getProductsService({
-            hotelId: user.default_hotel.id,
-            page: safePage,
-            limit: safeLimit,
-            search,
-            category,
-            withStock
+        return res.status(201).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * Updates a product
+ * @param req
+ * @param res
+ * @returns
+ */
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const data = req.body;
+        const { id } = req.params;
+
+        if (!user.default_hotel) {
+            throw new NotFoundError("User hotel missing");
+        }
+
+        const result = await ProductService.updateProduct(
+            user.default_hotel.id,
+            Number(id),
+            user.id,
+            data
+        );
+
+        return res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * Deletes product
+ * @param req
+ * @param res
+ */
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const { id } = req.params;
+
+        if (!user.default_hotel) {
+            throw new NotFoundError("User hotel missing");
+        }
+
+        await ProductService.deleteProduct(user.default_hotel.id, Number(id));
+
+        return res.status(200).json({
+            message: "Product deleted successfully",
         });
-
-        return res.json(result);
-    };
-
-    /**
-     * Creates a product  using user default hotel
-     * @param req
-     * @param res
-     */
-    createProduct = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user!;
-            const data = req.body;
-
-            if (!user.default_hotel) throw new NotFoundError("User hotel missing");
-
-            const result = await this.productService.createProductService(
-                user.default_hotel.id,
-                data
-            );
-
-            return res.status(201).json(result);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    /**
-     * Updates a product
-     * @param req
-     * @param res
-     * @returns
-     */
-    updateProduct = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user!;
-            const data = req.body;
-            const { id } = req.params;
-
-            if (!user.default_hotel) {
-                throw new NotFoundError("User hotel missing");
-            }
-
-            const result = await this.productService.updateProductService(
-                user.default_hotel.id,
-                Number(id),
-                user.id,
-                data
-            );
-
-            return res.status(200).json(result);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    /**
-     * Deletes product
-     * @param req
-     * @param res
-     */
-    deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user!;
-            const { id } = req.params;
-
-            if (!user.default_hotel) {
-                throw new NotFoundError("User hotel missing");
-            }
-
-            await this.productService.deleteProductService(user.default_hotel.id, Number(id));
-
-            return res.status(200).json({
-                message: "Product deleted successfully",
-            });
-        } catch (err) {
-            next(err);
-        }
-    };
-}
+    } catch (err) {
+        next(err);
+    }
+};

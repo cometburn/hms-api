@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { ProductController } from "@/controllers/product.controller";
-
 import { withValidation } from "@/middlewares/validation.middleware";
+
+import { getProducts, createProduct, updateProduct, deleteProduct } from "@/controllers/product.controller";
 import { productSchema } from "@/interfaces/types/product.types";
 
 const productRoute = Router();
-const productController = new ProductController();
 
 /**
  * @openapi
@@ -25,7 +24,7 @@ const productController = new ProductController();
  *                 data:
  *                   type: object
  */
-productRoute.get("/", productController.getProducts);
+productRoute.get("/", getProducts);
 
 /**
  * @openapi
@@ -49,7 +48,7 @@ productRoute.get("/", productController.getProducts);
  *                 data:
  *                   type: object
  */
-productRoute.post("/", withValidation(productSchema, productController.createProduct));
+productRoute.post("/", withValidation(productSchema, createProduct));
 
 /**
  * @openapi
@@ -73,7 +72,7 @@ productRoute.post("/", withValidation(productSchema, productController.createPro
  *                 data:
  *                   type: object
  */
-productRoute.put("/:id", withValidation(productSchema.partial(), productController.updateProduct));
+productRoute.put("/:id", withValidation(productSchema.partial(), updateProduct));
 
 /**
  * @openapi
@@ -93,6 +92,6 @@ productRoute.put("/:id", withValidation(productSchema.partial(), productControll
  *                 data:
  *                   type: object
  */
-productRoute.delete("/:id", productController.deleteProduct);
+productRoute.delete("/:id", deleteProduct);
 
 export default productRoute;

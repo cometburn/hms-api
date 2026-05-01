@@ -3,6 +3,7 @@ import { CorsOptions } from "cors";
 export const allowedOrigins = [
     process.env.APP_URL,
     "http://localhost:9000",
+    "http://localhost:9001",
     "http://192.168.0.141:9000",
 ].filter((origin): origin is string => !!origin);
 

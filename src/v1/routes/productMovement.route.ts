@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { ProductMovementController } from "@/controllers/productMovement.controller";
-
 import { withValidation } from "@/middlewares/validation.middleware";
 import { productMovementSchema } from "@/interfaces/types/productMovement.types";
 
+import { getProductMovements, createProductMovement, updateProductMovement } from "@/controllers/productMovement.controller";
+
 const productMovementRoute = Router();
-const productMovementController = new ProductMovementController();
 
 /**
  * @openapi
@@ -25,7 +24,7 @@ const productMovementController = new ProductMovementController();
  *                 data:
  *                   type: object
  */
-productMovementRoute.get("/", productMovementController.getProductMovements);
+productMovementRoute.get("/", getProductMovements);
 
 /**
  * @openapi
@@ -49,7 +48,7 @@ productMovementRoute.get("/", productMovementController.getProductMovements);
  *                 data:
  *                   type: object
  */
-productMovementRoute.post("/", withValidation(productMovementSchema, productMovementController.createProductMovement));
+productMovementRoute.post("/", withValidation(productMovementSchema, createProductMovement));
 
 /**
  * @openapi
@@ -73,6 +72,6 @@ productMovementRoute.post("/", withValidation(productMovementSchema, productMove
  *                 data:
  *                   type: object
  */
-productMovementRoute.put("/:id", withValidation(productMovementSchema.partial(), productMovementController.updateProductMovement));
+productMovementRoute.put("/:id", withValidation(productMovementSchema.partial(), updateProductMovement));
 
 export default productMovementRoute;

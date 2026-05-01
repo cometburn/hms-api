@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { RoomTypeController } from "@/controllers/roomType.controller";
 
-import { roomTypeSchema } from "@/interfaces/types/roomType.types";
 import { withValidation } from "@/middlewares/validation.middleware";
+import { getAllRoomTypes, createRoomType, updateRoomType, deleteRoomType } from "@/controllers/roomType.controller";
+import { roomTypeSchema } from "@/interfaces/types/roomType.types";
 
 const roomTypeRoute = Router();
-const roomTypeController = new RoomTypeController();
 
 /**
  * @openapi
@@ -25,7 +24,7 @@ const roomTypeController = new RoomTypeController();
  *                 data:
  *                   type: object
  */
-roomTypeRoute.get("/", roomTypeController.getAllRoomTypes);
+roomTypeRoute.get("/", getAllRoomTypes);
 
 /**
  * @openapi
@@ -49,7 +48,7 @@ roomTypeRoute.get("/", roomTypeController.getAllRoomTypes);
  *                 data:
  *                   type: object
  */
-roomTypeRoute.post("/", withValidation(roomTypeSchema, roomTypeController.createRoomType));
+roomTypeRoute.post("/", withValidation(roomTypeSchema, createRoomType));
 
 /**
  * @openapi
@@ -75,7 +74,7 @@ roomTypeRoute.post("/", withValidation(roomTypeSchema, roomTypeController.create
  */
 roomTypeRoute.put(
     "/:id",
-    withValidation(roomTypeSchema.partial(), roomTypeController.updateRoomType)
+    withValidation(roomTypeSchema.partial(), updateRoomType)
 );
 
 /**
@@ -96,6 +95,6 @@ roomTypeRoute.put(
  *                 data:
  *                   type: object
  */
-roomTypeRoute.delete("/:id", roomTypeController.deleteRoomType);
+roomTypeRoute.delete("/:id", deleteRoomType);
 
 export default roomTypeRoute;

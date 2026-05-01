@@ -1,20 +1,21 @@
 import { Router } from "express";
 import { withValidation } from "@/middlewares/validation.middleware";
-import { orderItemSchema } from "@/interfaces/types/orderItem.types";
 
-import { getOrderItems, createOrderItem, deleteOrderItem } from "@/controllers/orderItem.controller";
-const orderItemRoute = Router();
+import { getOrders, createOrder, deleteOrder } from "@/controllers/order.controller";
+import { orderSchema } from "@/interfaces/types/order.types";
+
+const orderRoute = Router();
 
 /**
  * @openapi
- * /api/v1/order-items/:orderId:
+ * /api/v1/orders:
  *   get:
- *     summary: Get order items by order ID
+ *     summary: Get all orders
  *     tags:
- *       - Order Items
+ *       - Orders
  *     responses:
  *       200:
- *         description: Order items fetched successfully
+ *         description: Orders fetched successfully
  *         content:
  *           application/json:
  *             schema:
@@ -23,22 +24,22 @@ const orderItemRoute = Router();
  *                 data:
  *                   type: object
  */
-orderItemRoute.get("/:orderId", getOrderItems);
+orderRoute.get("/", getOrders);
 
 /**
  * @openapi
- * /api/v1/order-items:
+ * /api/v1/orders:
  *   post:
- *     summary: Create a new order item
+ *     summary: Create a new order
  *     tags:
- *       - Order Items
+ *       - Orders
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *     responses:
  *       201:
- *         description: Order item created successfully
+ *         description: Order created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -47,18 +48,18 @@ orderItemRoute.get("/:orderId", getOrderItems);
  *                 data:
  *                   type: object
  */
-orderItemRoute.post("/", withValidation(orderItemSchema, createOrderItem));
+orderRoute.post("/", withValidation(orderSchema, createOrder));
 
 /**
  * @openapi
- * /api/v1/order-items/:orderItemId:
+ * /api/v1/orders/:id:
  *   delete:
- *     summary: Delete an order item
+ *     summary: Delete an order
  *     tags:
- *       - Order Items
+ *       - Orders
  *     responses:
  *       200:
- *         description: Order item deleted successfully
+ *         description: Order deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -67,6 +68,6 @@ orderItemRoute.post("/", withValidation(orderItemSchema, createOrderItem));
  *                 data:
  *                   type: object
  */
-orderItemRoute.delete("/:orderItemId", deleteOrderItem);
+orderRoute.delete("/:id", deleteOrder);
 
-export default orderItemRoute;
+export default orderRoute;

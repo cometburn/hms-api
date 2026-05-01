@@ -1,77 +1,97 @@
 import { NextFunction, Request, Response } from "express";
-import { OrderService } from "@/services/order.service";
 import { socketService } from "@/sockets/socket.service";
 import { NotFoundError } from "@/helpers/error.helper";
 
-export class OrderController {
-    private orderService: OrderService;
+import * as OrderService from "@/services/order.service";
 
-    constructor() {
-        this.orderService = new OrderService();
-    }
-    /**
-     * Gets all  orders
-     * @param req
-     * @param res
-     */
-    getOrders = async (req: Request, res: Response) => {
-        const result = await this.orderService.getOrder({
-            bookingId: Number(req.params.bookingId),
+/**
+ * Gets all  orders
+ * @param req
+ * @param res
+ */
+export const getOrders = async (req: Request, res: Response) => {
+    const user = req.user!;
+    if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+
+    const page = Number(req.query.page);
+    const limit = Number(req.query.limit);
+    const safePage = !isNaN(page) ? page : 1;
+    const safeLimit = !isNaN(limit) ? limit : 10;
+    const bookingId = req.query.booking_id;
+    const status = req.query.status;
+
+    const result = await OrderService.getOrders({
+        hotelId: user.default_hotel.id,
+        bookingId: Number(bookingId),
+        status: String(status),
+        page: safePage,
+        limit: safeLimit,
+    });
+
+    return res.json(result);
+};
+
+/**
+ * Gets all  orders
+ * @param req
+ * @param res
+ */
+export const getOrder = async (req: Request, res: Response) => {
+    const bookingId = Number(req.params.bookingId)
+    const result = await OrderService.getOrder(bookingId);
+
+    return res.json(result);
+};
+
+/**
+ * Creates a  order
+ * @param req
+ * @param res
+ */
+export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const data = req.body;
+
+        if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+
+        const result = await OrderService.createOrder({
+            ...data,
+            user_id: user.id,
         });
 
-        return res.json(result);
-    };
+        socketService.emitToHotelUsers(
+            `hotel_${user.default_hotel.id}`,
+            "Order_created",
+            result
+        );
 
-    /**
-     * Creates a  order
-     * @param req
-     * @param res
-     */
-    createOrder = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user!;
-            const data = req.body;
+        return res.status(201).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
 
-            if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+/**
+ * Deletes  order
+ * @param req
+ * @param res
+ */
+export const deleteOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const { Id } = req.params;
 
-            const result = await this.orderService.createOrder({
-                ...data,
-                user_id: user.id,
-            });
-
-            socketService.emitToHotelUsers(
-                `hotel_${user.default_hotel.id}`,
-                "Order_created",
-                result
-            );
-
-            return res.status(201).json(result);
-        } catch (err) {
-            next(err);
+        if (!user.default_hotel) {
+            throw new NotFoundError("User hotel missing");
         }
-    };
 
-    /**
-     * Deletes  order
-     * @param req
-     * @param res
-     */
-    deleteOrder = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user!;
-            const { Id } = req.params;
+        await OrderService.deleteOrder(Number(Id));
 
-            if (!user.default_hotel) {
-                throw new NotFoundError("User hotel missing");
-            }
-
-            await this.orderService.deleteOrder(Number(Id));
-
-            return res.status(200).json({
-                message: " Order deleted successfully",
-            });
-        } catch (err) {
-            next(err);
-        }
-    };
-}
+        return res.status(200).json({
+            message: " Order deleted successfully",
+        });
+    } catch (err) {
+        next(err);
+    }
+};

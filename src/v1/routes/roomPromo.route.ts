@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { RoomPromoController } from "@/controllers/roomPromo.controller";
 
 import { withValidation } from "@/middlewares/validation.middleware";
+import { getAllRoomPromos, createRoomPromo, updateRoomPromo, deleteRoomPromo } from "@/controllers/roomPromo.controller";
 import { roomPromoSchema } from "@/interfaces/types/roomPromo.types";
 
 const roomPromoRoute = Router();
-const roomPromoController = new RoomPromoController();
 
 /**
  * @openapi
@@ -25,7 +24,7 @@ const roomPromoController = new RoomPromoController();
  *                 data:
  *                   type: object
  */
-roomPromoRoute.get("/", roomPromoController.getAllRoomPromos);
+roomPromoRoute.get("/", getAllRoomPromos);
 
 /**
  * @openapi
@@ -49,7 +48,7 @@ roomPromoRoute.get("/", roomPromoController.getAllRoomPromos);
  *                 data:
  *                   type: object
  */
-roomPromoRoute.post("/", withValidation(roomPromoSchema, roomPromoController.createRoomPromo));
+roomPromoRoute.post("/", withValidation(roomPromoSchema, createRoomPromo));
 
 /**
  * @openapi
@@ -75,7 +74,7 @@ roomPromoRoute.post("/", withValidation(roomPromoSchema, roomPromoController.cre
  */
 roomPromoRoute.put(
     "/:id",
-    withValidation(roomPromoSchema.partial(), roomPromoController.updateRoomPromo)
+    withValidation(roomPromoSchema.partial(), updateRoomPromo)
 );
 
 /**
@@ -96,6 +95,6 @@ roomPromoRoute.put(
  *                 data:
  *                   type: object
  */
-roomPromoRoute.delete("/:id", roomPromoController.deleteRoomPromo);
+roomPromoRoute.delete("/:id", deleteRoomPromo);
 
 export default roomPromoRoute;

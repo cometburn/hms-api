@@ -1,35 +1,29 @@
 import { BookingAddon } from "@prisma/client";
-import { BookingAddonRepository } from "@/repositories/bookingAddon.repository";
 import { BookingAddonRequestParams } from "@/interfaces/types/bookingAddon.types";
+import * as BookingAddonRepository from "@/repositories/bookingAddon.repository";
 
-export class BookingAddonService {
-    private bookingAddonRepository: BookingAddonRepository;
-    constructor() {
-        this.bookingAddonRepository = new BookingAddonRepository();
-    }
-    /**
-     * Gets all booking addons
-     * @param bookingId
-     * @returns
-     */
-    getBookingAddonService = async ({ bookingId }: BookingAddonRequestParams) => {
-        return await this.bookingAddonRepository.getBookingAddOnsRepository(bookingId);
-    };
+/**
+ * Gets all booking addons
+ * @param bookingId
+ * @returns
+ */
+export const getBookingAddons = async ({ bookingId }: BookingAddonRequestParams) => {
+    return await BookingAddonRepository.getBookingAddOns(bookingId);
+};
 
-    /**
-     * Create Booking Addon service
-     * @param data
-     * @returns created Booking Addon
-     */
-    createBookingAddonService = async (data: BookingAddon) => {
-        return await this.bookingAddonRepository.createBookingAddonRepository(data);
-    };
+/**
+ * Create Booking Addon 
+ * @param data
+ * @returns created Booking Addon
+ */
+export const createBookingAddon = async (data: BookingAddon) => {
+    return await BookingAddonRepository.createBookingAddon(data);
+};
 
-    /**
-     * Deletes booking addon
-     * @param bookingId
-     */
-    deleteBookingAddonService = async (bookingId: number) => {
-        return await this.bookingAddonRepository.deleteBookingAddonRepository(bookingId);
-    };
-}
+/**
+ * Deletes booking addon
+ * @param bookingId
+ */
+export const deleteBookingAddon = async (bookingId: number) => {
+    return await BookingAddonRepository.deleteBookingAddon(bookingId);
+};

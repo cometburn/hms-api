@@ -1,55 +1,70 @@
-import { OrderRepository } from "@/repositories/order.repository";
 import { Order, OrderRequestParams } from "@/interfaces/types/order.types";
+import * as OrderRepository from "@/repositories/order.repository";
 
-export class OrderService {
-    private orderRepo: OrderRepository;
+/**
+ * Get Orders
+ * @param bookingId
+ * @returns
+ */
+export const getOrders = async ({
+    hotelId,
+    bookingId,
+    status,
+    page,
+    limit,
+}: OrderRequestParams) => {
+    const skip = (page - 1) * limit;
 
-    constructor() {
-        this.orderRepo = new OrderRepository();
-    }
+    const [data, total] = await Promise.all([
+        OrderRepository.getOrders(hotelId, bookingId, status, skip, limit),
+        OrderRepository.countOrders(hotelId, bookingId, status),
+    ]);
 
-    /**
-     * Get Orders
-     * @param bookingId
-     * @returns
-     */
-    getOrders = async ({ bookingId }: OrderRequestParams) => {
-        return await this.orderRepo.getOrders(bookingId);
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+        data,
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages,
+        },
     };
+};
 
-    /**
-     * Get Order
-     * @param bookingId
-     * @returns
-     */
-    getOrder = async (bookingId: number) => {
-        return await this.orderRepo.getOrder(bookingId);
-    };
+/**
+ * Get Order
+ * @param bookingId
+ * @returns
+ */
+export const getOrder = async (bookingId: number) => {
+    return await OrderRepository.getOrder(bookingId);
+};
 
-    /**
-     * Create Order 
-     * @param data
-     * @returns created Order
-     */
-    createOrder = async (data: Order) => {
-        return await this.orderRepo.createOrder(data);
-    };
+/**
+ * Create Order 
+ * @param data
+ * @returns created Order
+ */
+export const createOrder = async (data: Order) => {
+    return await OrderRepository.createOrder(data);
+};
 
-    /**
-     * Update Order 
-     * @param data
-     * @returns updated Order
-     */
-    updateOrder = async (hotelId: number, orderId: number, data: Partial<Order>) => {
-        return await this.orderRepo.updateOrder(hotelId, orderId, data);
-    };
+/**
+ * Update Order 
+ * @param data
+ * @returns updated Order
+ */
+export const updateOrder = async (hotelId: number, orderId: number, data: Partial<Order>) => {
+    return await OrderRepository.updateOrder(hotelId, orderId, data);
+};
 
 
-    /**
-     * Deletes Order
-     * @param bookingId
-     */
-    deleteOrder = async (bookingId: number) => {
-        return await this.orderRepo.deleteOrder(bookingId);
-    };
-}
+/**
+ * Deletes Order
+ * @param bookingId
+ */
+export const deleteOrder = async (bookingId: number) => {
+    return await OrderRepository.deleteOrder(bookingId);
+};

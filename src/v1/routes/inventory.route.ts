@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { InventoryController } from "@/controllers/inventory.controller";
+import { getInventories } from "@/controllers/inventory.controller";
 
 const inventoryRoute = Router();
-const inventoryController = new InventoryController();
 
 /**
  * @openapi
@@ -22,6 +21,6 @@ const inventoryController = new InventoryController();
  *                 data:
  *                   type: object
  */
-inventoryRoute.get("/", inventoryController.getInventories);
+inventoryRoute.get("/", getInventories);
 
 export default inventoryRoute;

@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { RoomController } from "@/controllers/room.controller";
-
 import { withValidation } from "@/middlewares/validation.middleware";
 import { roomSchema } from "@/interfaces/types/room.types";
 
+import { getAllRooms, createRoom, updateRoom, deleteRoom } from "@/controllers/room.controller";
+
 const roomRoute = Router();
-const roomController = new RoomController();
 
 /**
  * @openapi
@@ -25,7 +24,7 @@ const roomController = new RoomController();
  *                 data:
  *                   type: object
  */
-roomRoute.get("/", roomController.getAllRooms);
+roomRoute.get("/", getAllRooms);
 
 /**
  * @openapi
@@ -49,7 +48,7 @@ roomRoute.get("/", roomController.getAllRooms);
  *                 data:
  *                   type: object
  */
-roomRoute.post("/", withValidation(roomSchema, roomController.createRoom));
+roomRoute.post("/", withValidation(roomSchema, createRoom));
 
 /**
  * @openapi
@@ -73,7 +72,7 @@ roomRoute.post("/", withValidation(roomSchema, roomController.createRoom));
  *                 data:
  *                   type: object
  */
-roomRoute.put("/:id", withValidation(roomSchema.partial(), roomController.updateRoom));
+roomRoute.put("/:id", withValidation(roomSchema.partial(), updateRoom));
 
 /**
  * @openapi
@@ -93,6 +92,6 @@ roomRoute.put("/:id", withValidation(roomSchema.partial(), roomController.update
  *                 data:
  *                   type: object
  */
-roomRoute.delete("/:id", roomController.deleteRoom);
+roomRoute.delete("/:id", deleteRoom);
 
 export default roomRoute;

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const productMovementSchema = z.object({
     id: z.number().optional(),
-    user_id: z.number().optional(),
+    user_id: z.number(),
     product_id: z.number(),
     booking_id: z.number().optional().nullable(),
     order_id: z.number().optional().nullable(),

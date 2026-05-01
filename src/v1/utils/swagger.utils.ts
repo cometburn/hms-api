@@ -37,14 +37,16 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 export const setupSwagger = (app: Express) => {
-    app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-        swaggerOptions: {
-            persistAuthorization: true,
-        },
-    }));
+    if (process.env.NODE_ENV !== "production") {
+        app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+            swaggerOptions: {
+                persistAuthorization: true,
+            },
+        }));
 
-    app.get("/docs.json", (req: Request, res: Response) => {
-        res.setHeader("Content-Type", "application/json");
-        res.send(swaggerSpec);
-    });
+        app.get("/docs.json", (req: Request, res: Response) => {
+            res.setHeader("Content-Type", "application/json");
+            res.send(swaggerSpec);
+        });
+    }
 };

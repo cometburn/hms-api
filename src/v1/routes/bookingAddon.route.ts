@@ -1,10 +1,14 @@
 import { Router } from "express";
-import { BookingAddonController } from "@/controllers/bookingAddon.controller";
 import { withValidation } from "@/middlewares/validation.middleware";
 import { bookingAddonSchema } from "@/interfaces/types/bookingAddon.types";
 
+import {
+    getBookingAddons,
+    createBookingAddon,
+    deleteBookingAddon,
+} from "@/controllers/bookingAddon.controller";
+
 const router = Router();
-const controller = new BookingAddonController();
 
 /**
  * @openapi
@@ -24,7 +28,7 @@ const controller = new BookingAddonController();
  *                 data:
  *                   type: object
  */
-router.get("/:bookingId", controller.getBookingAddons);
+router.get("/:bookingId", getBookingAddons);
 
 /**
  * @openapi
@@ -50,7 +54,7 @@ router.get("/:bookingId", controller.getBookingAddons);
  *                 data:
  *                   type: object
  */
-router.post("/", withValidation(bookingAddonSchema, controller.createBookingAddon));
+router.post("/", withValidation(bookingAddonSchema, createBookingAddon));
 
 /**
  * @openapi
@@ -73,6 +77,6 @@ router.post("/", withValidation(bookingAddonSchema, controller.createBookingAddo
  *                     message:
  *                       type: string
  */
-router.delete("/:bookingId", controller.deleteBookingAddon);
+router.delete("/:bookingId", deleteBookingAddon);
 
 export default router;

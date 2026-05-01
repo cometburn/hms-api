@@ -1,81 +1,70 @@
 import { NextFunction, Request, Response } from "express";
-import { OrderItemService } from "@/services/orderItem.service";
 import { socketService } from "@/sockets/socket.service";
 import { NotFoundError } from "@/helpers/error.helper";
 
-export class OrderItemController {
-    private orderItemService: OrderItemService;
+import * as OrderItemService from "@/services/orderItem.service";
 
-    constructor() {
-        this.orderItemService = new OrderItemService();
+/**
+ * Gets all Order items
+ * @param req
+ * @param res
+ */
+export const getOrderItems = async (req: Request, res: Response) => {
+    const orderId = req.params.orderId;
+    const result = await OrderItemService.getOrderItems(Number(orderId));
 
-        this.getOrderItems = this.getOrderItems.bind(this);
-        this.createOrderItem = this.createOrderItem.bind(this);
-        this.deleteOrderItem = this.deleteOrderItem.bind(this);
+    return res.json(result);
+};
+
+/**
+ * Creates a Order item
+ * @param req
+ * @param res
+ */
+export const createOrderItem = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const data = req.body;
+
+        if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+
+        const result = await OrderItemService.createOrderItem({
+            ...data,
+            user_id: user.id,
+        });
+
+        socketService.emitToHotelUsers(
+            `hotel_${user.default_hotel.id}`,
+            "order_item_created",
+            result
+        );
+
+        return res.status(201).json(result);
+    } catch (err) {
+        next(err);
     }
+};
 
-    /**
-     * Gets all Order items
-     * @param req
-     * @param res
-     */
-    getOrderItems = async (req: Request, res: Response) => {
-        const orderId = req.params.orderId;
-        const result = await this.orderItemService.getOrderItems(Number(orderId));
+/**
+ * Deletes Order item
+ * @param req
+ * @param res
+ */
+export const deleteOrderItem = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const { orderItemId } = req.params;
 
-        return res.json(result);
-    };
-
-    /**
-     * Creates a Order item
-     * @param req
-     * @param res
-     */
-    createOrderItem = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user!;
-            const data = req.body;
-
-            if (!user.default_hotel) throw new NotFoundError("User hotel missing");
-
-            const result = await this.orderItemService.createOrderItem({
-                ...data,
-                user_id: user.id,
-            });
-
-            socketService.emitToHotelUsers(
-                `hotel_${user.default_hotel.id}`,
-                "order_item_created",
-                result
-            );
-
-            return res.status(201).json(result);
-        } catch (err) {
-            next(err);
+        if (!user.default_hotel) {
+            throw new NotFoundError("User hotel missing");
         }
-    };
 
-    /**
-     * Deletes Order item
-     * @param req
-     * @param res
-     */
-    deleteOrderItem = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user!;
-            const { orderItemId } = req.params;
+        await OrderItemService.deleteOrderItem(user.default_hotel.id, Number(orderItemId));
 
-            if (!user.default_hotel) {
-                throw new NotFoundError("User hotel missing");
-            }
-
-            await this.orderItemService.deleteOrderItem(user.default_hotel.id, Number(orderItemId));
-
-            return res.status(200).json({
-                message: "Order item deleted successfully",
-            });
-        } catch (err) {
-            next(err);
-        }
-    };
-}
+        return res.status(200).json({
+            message: "Order item deleted successfully",
+        });
+    } catch (err) {
+        next(err);
+    }
+};

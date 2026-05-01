@@ -1,81 +1,77 @@
 import { RoomRate } from "@prisma/client";
-import { RoomRateRepository } from "@/repositories/roomRate.repository";
 
 import { RequestParams } from "@/interfaces";
+import * as RoomRateRepository from "@/repositories/roomRate.repository";
 
-export class RoomRateService {
-    private roomRateRepository: RoomRateRepository;
-    constructor() {
-        this.roomRateRepository = new RoomRateRepository();
-    }
+/**
+ * Gets all room rates service
+ * @param hotelId
+ * @param page
+ * @param limit
+ * @param search
+ * @returns
+ */
+export const getAllRoomRates = async ({ hotelId, page, limit, search }: RequestParams) => {
+    const skip = (page - 1) * limit;
 
-    /**
-     * Gets all room rates service
-     * @param hotelId
-     * @param page
-     * @param limit
-     * @param search
-     * @returns
-     */
-    getAllRoomRatesService = async ({ hotelId, page, limit, search }: RequestParams) => {
-        const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+        RoomRateRepository.getRoomRates(hotelId, search, skip, limit),
+        RoomRateRepository.countRoomRates(hotelId, search),
+    ]);
 
-        const [data, total] = await Promise.all([
-            this.roomRateRepository.getRoomRates(hotelId, search, skip, limit),
-            this.roomRateRepository.countRoomRates(hotelId, search),
-        ]);
+    const totalPages = Math.ceil(total / limit);
 
-        const totalPages = Math.ceil(total / limit);
-
-        return {
-            data,
-            meta: {
-                total,
-                page,
-                limit,
-                totalPages,
-            },
-        };
+    return {
+        data,
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages,
+        },
     };
+};
 
-    /**
-     * Creates a room rate service
-     * @param hotelId
-     * @param data
-     * @returns
-     */
-    createRoomRateService = async (hotelId: number, data: any) => {
-        return await this.roomRateRepository.createRoomRateRepository({
-            ...data,
-            hotel_id: hotelId,
-        });
-    };
+/**
+ * Creates a room rate service
+ * @param hotelId
+ * @param data
+ * @returns
+ */
+export const createRoomRate = async (hotelId: number, data: any) => {
+    return await RoomRateRepository.createRoomRate({
+        ...data,
+        hotel_id: hotelId,
+    });
+};
 
-    /**
-     * Updates room rate service
-     * @param hotelId
-     * @param id
-     * @param data
-     * @returns
-     */
-    updateRoomRateService = async (hotelId: number, id: number, data: Partial<RoomRate>) => {
-        return await this.roomRateRepository.updateRoomRateRepository(hotelId, id, data);
-    };
+/**
+ * Updates room rate service
+ * @param hotelId
+ * @param id
+ * @param data
+ * @returns
+ */
+export const updateRoomRate = async (hotelId: number, id: number, data: Partial<RoomRate>) => {
+    return await RoomRateRepository.updateRoomRate(hotelId, id, data);
+};
 
-    /**
-     * Delete room type service
-     * @param hotelId
-     * @param id
-     * @returns deleted room type
-     */
-    deleteRoomRateService = async (hotelId: number, id: number) => {
-        return await this.roomRateRepository.deleteRoomRateRepository(hotelId, id);
-    };
+/**
+ * Delete room type service
+ * @param hotelId
+ * @param id
+ * @returns deleted room type
+ */
+export const deleteRoomRate = async (hotelId: number, id: number) => {
+    return await RoomRateRepository.deleteRoomRate(hotelId, id);
+};
 
-    getRoomRatesByRoomTypeIdService = async (hotelId: number, roomTypeId: number) => {
-        return await this.roomRateRepository.getRoomRatesByRoomTypeIdRepository(
-            hotelId,
-            roomTypeId
-        );
-    };
-}
+/**
+ * Gets room rates by room type id service
+ * @param hotelId
+ * @param roomTypeId
+ * @returns
+ */
+export const getRoomRatesByRoomTypeId = async (hotelId: number, roomTypeId: number) => {
+    return await RoomRateRepository.getRoomRatesByRoomTypeId(hotelId, roomTypeId);
+};

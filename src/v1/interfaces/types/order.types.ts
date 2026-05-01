@@ -17,5 +17,9 @@ export const orderSchema = z.object({
 export type Order = z.infer<typeof orderSchema>;
 
 export interface OrderRequestParams {
+    hotelId: number;
     bookingId: number;
+    status: string;
+    page: number;
+    limit: number;
 }

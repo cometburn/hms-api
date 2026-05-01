@@ -1,67 +1,61 @@
-import { ProductMovementRepository } from "@/repositories/productMovement.repository";
+import * as ProductMovementRepository from "@/repositories/productMovement.repository";
 import { ProductMovement, ProductMovementRequestParams } from "@/interfaces/types/productMovement.types";
 
-export class ProductMovementService {
-    private productMovementRepository: ProductMovementRepository;
-    constructor() {
-        this.productMovementRepository = new ProductMovementRepository();
-    }
-    /**
-     * Gets all product movements
-     * @param hotelId
-     * @param page
-     * @param limit
-     * @param search
-     * @returns
-     */
-    getProductMovementsService = async ({
-        hotelId,
-        page,
-        limit,
-        search,
-        type,
-    }: ProductMovementRequestParams) => {
-        const skip = (page - 1) * limit;
+/**
+ * Gets all product movements
+ * @param hotelId
+ * @param page
+ * @param limit
+ * @param search
+ * @returns
+ */
+export const getProductMovements = async ({
+    hotelId,
+    page,
+    limit,
+    search,
+    type,
+}: ProductMovementRequestParams) => {
+    const skip = (page - 1) * limit;
 
-        const [data, total] = await Promise.all([
-            this.productMovementRepository.getProductMovements(hotelId, search, type, skip, limit),
-            this.productMovementRepository.countProductMovements(hotelId, search, type),
-        ]);
+    const [data, total] = await Promise.all([
+        ProductMovementRepository.getProductMovements(hotelId, search, type, skip, limit),
+        ProductMovementRepository.countProductMovements(hotelId, search, type),
+    ]);
 
-        const totalPages = Math.ceil(total / limit);
+    const totalPages = Math.ceil(total / limit);
 
-        return {
-            data,
-            meta: {
-                total,
-                page,
-                limit,
-                totalPages,
-            },
-        };
+    return {
+        data,
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages,
+        },
     };
+};
 
-    /**
-     * Creates a product movement service
-     * @param hotelId
-     * @param data
-     * @returns created product movement
-     */
-    createProductMovementService = async (userId: number, data: ProductMovement) => {
-        return await this.productMovementRepository.createProductMovementRepository({
-            ...data,
-            user_id: userId,
-        });
-    };
+/**
+ * Creates a product movement 
+ * @param hotelId
+ * @param data
+ * @returns created product movement
+ */
+export const createProductMovement = async (userId: number, data: ProductMovement) => {
+    return await ProductMovementRepository.createProductMovement({
+        ...data,
+        user_id: userId,
+    });
+};
 
-    /**
-     * Updates a product movement service
-     * @param hotelId
-     * @param id
-     * @param data
-     * @returns updated product movement
-     */
-    updateProductMovementService = async (hotelId: number, productMovementId: number, userId: number, data: Partial<ProductMovement>) => {
-        return await this.productMovementRepository.updateProductMovementRepository(hotelId, productMovementId, userId, data);
-    };
-}
+/**
+ * Updates a product movement 
+ * @param hotelId
+ * @param id
+ * @param data
+ * @returns updated product movement
+ */
+export const updateProductMovement = async (hotelId: number, productMovementId: number, userId: number, data: Partial<ProductMovement>) => {
+    return await ProductMovementRepository.updateProductMovement(hotelId, productMovementId, userId, data);
+};

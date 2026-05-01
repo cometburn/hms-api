@@ -1,125 +1,105 @@
 import { NextFunction, Request, Response } from "express";
-import { socketService } from "@/sockets/socket.service";
-import { BookingService } from "@/services/booking.service";
 import { NotFoundError } from "@/helpers/error.helper";
-import { OrderService } from "@/services/order.service";
-import { OrderItemService } from "@/services/orderItem.service";
-import { InventoryService } from "@/services/inventory.service";
+import { socketService } from "@/sockets/socket.service";
 
+import * as BookingService from "@/services/booking.service";
+import { createOrder } from "@/services/order.service";
 
-export class BookingController {
-    private bookingService: BookingService;
-    private orderService: OrderService;
-    private orderItemService: OrderItemService;
-    private inventoryService: InventoryService;
+/**
+ * Get Booking By Id
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const getBookingById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const { bookingId } = req.params;
+        if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-    constructor() {
-        this.bookingService = new BookingService();
-        this.orderService = new OrderService();
-        this.orderItemService = new OrderItemService();
-        this.inventoryService = new InventoryService();
+        const result = await BookingService.findBookingById(
+            user.default_hotel.id,
+            Number(bookingId)
+        );
 
-        this.getBookingById = this.getBookingById.bind(this);
-        this.createBooking = this.createBooking.bind(this);
-        this.updateBooking = this.updateBooking.bind(this);
+        return res.json(result);
+    } catch (err) {
+        next(err);
     }
+}
 
-    /**
-     * Get Booking By Id
-     * @param req
-     * @param res
-     * @param next
-     * @returns
-     */
-    async getBookingById(req: Request, res: Response, next: NextFunction) {
-        try {
-            const user = req.user!;
-            const { bookingId } = req.params;
-            if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+/**
+ * Create Booking
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const createBooking = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const data = req.body;
 
-            const result = await this.bookingService.findBookingById(
-                user.default_hotel.id,
-                Number(bookingId)
-            );
+        if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-            return res.json(result);
-        } catch (err) {
-            next(err);
-        }
+        const booking = await BookingService.createBooking({
+            ...data,
+            hotel_id: user.default_hotel.id,
+            user_id: user.id,
+        });
+
+        // create order
+        await createOrder({
+            hotel_id: user.default_hotel.id,
+            booking_id: booking.id,
+            total_price: 0,
+            status: "pending",
+        });
+
+        socketService.emitToHotelUsers(
+            `hotel_${user.default_hotel.id}`,
+            "check_in",
+            booking
+        );
+
+        return res.status(201).json({
+            message: "Booking created successfully",
+            data: booking,
+        });
+    } catch (err) {
+        next(err);
     }
+}
 
-    /**
-     * Create Booking
-     * @param req
-     * @param res
-     * @param next
-     * @returns
-     */
-    async createBooking(req: Request, res: Response, next: NextFunction) {
-        try {
-            const user = req.user!;
-            const data = req.body;
+/**
+ * Update Booking
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const updateBooking = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const data = req.body;
+        const bookingId = Number(data.id);
 
-            if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+        if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-            const booking = await this.bookingService.createBooking({
-                ...data,
-                hotel_id: user.default_hotel.id,
-                user_id: user.id,
-            });
+        const hotelId = user.default_hotel.id; // destructure once after the check
 
-            // create order
-            await this.orderService.createOrder({
-                hotel_id: user.default_hotel.id,
-                booking_id: booking.id,
-                total_price: 0,
-                status: "pending",
-            });
+        const result = await BookingService.updateBooking(hotelId, user.id, bookingId, data);
 
-            socketService.emitToHotelUsers(
-                `hotel_${user.default_hotel.id}`,
-                "check_in",
-                booking
-            );
-
-            return res.status(201).json({
-                message: "Booking created successfully",
-                data: booking,
-            });
-        } catch (err) {
-            next(err);
+        if (data.status === "check_out") {
+            socketService.emitToHotelUsers(`hotel_${hotelId}`, "check_out", result);
         }
-    }
 
-    /**
-     * Update Booking
-     * @param req
-     * @param res
-     * @param next
-     * @returns
-     */
-    async updateBooking(req: Request, res: Response, next: NextFunction) {
-        try {
-            const user = req.user!;
-            const data = req.body;
-            const bookingId = Number(data.id);
-
-            if (!user.default_hotel) throw new NotFoundError("User hotel missing");
-
-            const hotelId = user.default_hotel.id; // destructure once after the check
-
-            const result = await this.bookingService.updateBooking(hotelId, user.id, bookingId, data);
-
-            if (data.status === "check_out") {
-                socketService.emitToHotelUsers(`hotel_${hotelId}`, "check_out", result);
-            }
-
-            return res.status(200).json({
-                message: "Booking updated successfully",
-                data: result,
-            });
-        } catch (err) {
-            next(err);
-        }
+        return res.status(200).json({
+            message: "Booking updated successfully",
+            data: result,
+        });
+    } catch (err) {
+        next(err);
     }
 }

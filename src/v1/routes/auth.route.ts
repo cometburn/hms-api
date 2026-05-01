@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { AuthController } from "@/controllers/auth.controller";
 import { protect } from "@/middlewares/auth.middleware";
 import { withValidation } from "@/middlewares/validation.middleware";
 import { loginSchema } from "@/interfaces/types/auth.types";
+import { me, login, refreshToken, logout, googleLogin } from "@/controllers/auth.controller";
 
 const router = Router();
-const controller = new AuthController();
 
 /**
  * @openapi
@@ -18,6 +17,18 @@ const controller = new AuthController();
  *       required: true
  *       content:
  *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: admin@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
  *     responses:
  *       200:
  *         description: Login successful
@@ -33,10 +44,8 @@ const controller = new AuthController();
  *                       type: string
  *                     refreshToken:
  *                       type: string
- *                     user:
- *                       $ref: "#/components/schemas/User"
  */
-router.post("/login", withValidation(loginSchema, controller.login));
+router.post("/login", withValidation(loginSchema, login));
 
 /**
  * @openapi
@@ -59,7 +68,7 @@ router.post("/login", withValidation(loginSchema, controller.login));
  *                     message:
  *                       type: string
  */
-router.post("/logout", protect, controller.logout);
+router.post("/logout", protect, logout);
 
 /**
  * @openapi
@@ -84,7 +93,7 @@ router.post("/logout", protect, controller.logout);
  *                     refreshToken:
  *                       type: string
  */
-router.post("/refresh", controller.refreshToken);
+router.post("/refresh", refreshToken);
 
 /**
  * @openapi
@@ -103,11 +112,8 @@ router.post("/refresh", controller.refreshToken);
  *               properties:
  *                 data:
  *                   type: object
- *                   properties:
- *                     user:
- *                       $ref: "#/components/schemas/User"
  */
-router.get("/me", protect, controller.me);
+router.get("/me", protect, me);
 
 /**
  * @openapi
@@ -116,6 +122,18 @@ router.get("/me", protect, controller.me);
  *     summary: Google login
  *     tags:
  *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - googleToken
+ *             properties:
+ *               googleToken:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNzE0MTQ5MjM4fQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
  *     responses:
  *       200:
  *         description: Login successful
@@ -131,9 +149,7 @@ router.get("/me", protect, controller.me);
  *                       type: string
  *                     refreshToken:
  *                       type: string
- *                     user:
- *                       $ref: "#/components/schemas/User"
  */
-router.post("/google", controller.googleLogin);
+router.post("/google", googleLogin);
 
 export default router;

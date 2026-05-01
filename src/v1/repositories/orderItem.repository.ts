@@ -1,89 +1,87 @@
 import prisma from "@/helpers/prisma.helper";
 import { OrderItem, Prisma } from "@prisma/client";
 
-export class OrderItemRepository {
-    /**
-     * Get Order Items
-     * @param hotelId
-     * @param search
-     * @param skip
-     * @param limit
-     * @returns list of orders
-     */
-    getOrderItemsRepository = async (orderId: number) => {
-        return await prisma.orderItem.findMany({
-            where: {
-                order_id: orderId,
+/**
+ * Get Order Items
+ * @param hotelId
+ * @param search
+ * @param skip
+ * @param limit
+ * @returns list of orders
+ */
+export const getOrderItems = async (orderId: number) => {
+    return await prisma.orderItem.findMany({
+        where: {
+            order_id: orderId,
+        },
+    });
+};
+
+/**
+ * Get Order Item by ID
+ * @param id
+ * @returns Order Item
+ */
+export const getOrderItemById = async (id: number) => {
+    return await prisma.orderItem.findUnique({
+        where: {
+            id,
+        },
+    });
+};
+
+/**
+ * Create Order Item service
+ * @param data
+ * @returns created Order Item
+ */
+export const createOrderItem = async (data: OrderItem) => {
+    return prisma.$transaction(async (tx) => {
+        const orderItem = await tx.orderItem.create({
+            data,
+            include: {
+                product: true,
             },
         });
-    };
 
-    /**
-     * Get Order Item by ID
-     * @param id
-     * @returns Order Item
-     */
-    getOrderItemById = async (id: number) => {
-        return await prisma.orderItem.findUnique({
+        const inventory = await tx.inventory.findUnique({
             where: {
-                id,
-            },
+                product_id: data.product_id
+            }
         });
-    };
 
-    /**
-     * Create Order Item service
-     * @param data
-     * @returns created Order Item
-     */
-    createOrderItemRepository = async (data: OrderItem) => {
-        return prisma.$transaction(async (tx) => {
-            const orderItem = await tx.orderItem.create({
-                data,
-                include: {
-                    product: true,
-                },
-            });
-
-            const inventory = await tx.inventory.findUnique({
+        if (inventory) {
+            await tx.inventory.update({
                 where: {
                     product_id: data.product_id
+                },
+                data: {
+                    reserved_qty: inventory.reserved_qty + data.quantity
                 }
             });
+        }
 
-            if (inventory) {
-                await tx.inventory.update({
-                    where: {
-                        product_id: data.product_id
-                    },
-                    data: {
-                        reserved_qty: inventory.reserved_qty + data.quantity
-                    }
-                });
-            }
+        return orderItem;
+    })
+};
 
-            return orderItem;
-        })
-    };
+/**
+ * Delete Order Item
+ * @param id
+ */
+export const deleteOrderItem = async (id: number) => {
+    return await prisma.orderItem.delete({
+        where: {
+            id,
+        },
+    });
+};
 
-    /**
-     * Delete Order Item
-     * @param id
-     */
-    deleteOrderItemRepository = async (id: number) => {
-        return await prisma.orderItem.delete({
-            where: {
-                id,
-            },
-        });
-    };
-
-    /**
-     * Create Many Order Items
-     * @param data 
-     * @returns 
-     */
-    async createManyOrderItems(data: Prisma.OrderItemCreateManyInput[]) {
-        return await prisma.orderItem.createMany({ data });
-    }
+/**
+ * Create Many Order Items
+ * @param data 
+ * @returns 
+ */
+export const createManyOrderItems = async (data: Prisma.OrderItemCreateManyInput[]) => {
+    return await prisma.orderItem.createMany({ data });
 }

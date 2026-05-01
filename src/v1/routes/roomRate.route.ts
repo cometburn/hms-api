@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { RoomRateController } from "@/controllers/roomRate.controller";
 
 import { withValidation } from "@/middlewares/validation.middleware";
+import { getAllRoomRates, createRoomRate, updateRoomRate, deleteRoomRate, getRoomRatesByRoomTypeId } from "@/controllers/roomRate.controller";
 import { roomRateSchema } from "@/interfaces/types/roomRate.types";
 
 const roomRateRoute = Router();
-const roomRateController = new RoomRateController();
 
 /**
  * @openapi
@@ -25,7 +24,7 @@ const roomRateController = new RoomRateController();
  *                 data:
  *                   type: object
  */
-roomRateRoute.get("/", roomRateController.getAllRoomRates);
+roomRateRoute.get("/", getAllRoomRates);
 
 /**
  * @openapi
@@ -49,7 +48,7 @@ roomRateRoute.get("/", roomRateController.getAllRoomRates);
  *                 data:
  *                   type: object
  */
-roomRateRoute.post("/", withValidation(roomRateSchema, roomRateController.createRoomRate));
+roomRateRoute.post("/", withValidation(roomRateSchema, createRoomRate));
 
 /**
  * @openapi
@@ -75,7 +74,7 @@ roomRateRoute.post("/", withValidation(roomRateSchema, roomRateController.create
  */
 roomRateRoute.put(
     "/:id",
-    withValidation(roomRateSchema.partial(), roomRateController.updateRoomRate)
+    withValidation(roomRateSchema.partial(), updateRoomRate)
 );
 
 /**
@@ -96,7 +95,7 @@ roomRateRoute.put(
  *                 data:
  *                   type: object
  */
-roomRateRoute.delete("/:id", roomRateController.deleteRoomRate);
+roomRateRoute.delete("/:id", deleteRoomRate);
 
 /**
  * @openapi
@@ -116,6 +115,6 @@ roomRateRoute.delete("/:id", roomRateController.deleteRoomRate);
  *                 data:
  *                   type: object
  */
-roomRateRoute.get("/room-type/:roomTypeId", roomRateController.getRoomRatesByRoomTypeId);
+roomRateRoute.get("/room-type/:roomTypeId", getRoomRatesByRoomTypeId);
 
 export default roomRateRoute;
