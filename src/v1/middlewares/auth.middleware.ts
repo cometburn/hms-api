@@ -11,6 +11,8 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     try {
         const bearer = req.headers.authorization;
 
+        console.log('bearer', bearer)
+
         if (!bearer?.startsWith("Bearer ")) {
             throw new UnauthorizedError("No token provided");
         }
