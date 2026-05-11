@@ -20,7 +20,6 @@ export const getOrderItems = async (orderId: number) => {
  * @returns created Order Item
  */
 export const createOrderItem = async (data: OrderItem, hotelId: number, bookingId: number, userId: number) => {
-    console.log('createOrderItem data', data)
 
     let orderId = data.order_id;
     if (orderId === 0) {

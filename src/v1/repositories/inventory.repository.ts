@@ -138,7 +138,6 @@ export const deleteInventory = async (hotelId: number, id: number) => {
  * @returns
  */
 export const incrementStock = async (productId: number, quantity: number) => {
-    console.log('incrementing stock for product', productId, 'by', quantity)
     return await prisma.inventory.update({
         where: { product_id: productId },
         data: {

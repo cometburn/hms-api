@@ -118,9 +118,6 @@ export const updateOrder = async (hotelId: number, userId: number, data: Partial
                     const existingItem = existingItems.find(i => i.id === item.id);
                     if (existingItem) {
                         const diff = item.quantity - existingItem.quantity;
-                        console.log('item.quantity', item.quantity)
-                        console.log('existingItem.quantity', existingItem.quantity)
-                        console.log('diff', diff)
                         if (diff > 0) {
                             await InventoryRepository.decrementStock(item.product_id, diff);
                         } else if (diff < 0) {
