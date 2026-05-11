@@ -40,8 +40,6 @@ export const createProductMovement = async (req: Request, res: Response, next: N
         const user = req.user!;
         const data = req.body;
 
-        console.log('user', user)
-
         if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
 

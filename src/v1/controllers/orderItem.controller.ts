@@ -28,10 +28,12 @@ export const createOrderItem = async (req: Request, res: Response, next: NextFun
 
         if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-        const result = await OrderItemService.createOrderItem({
-            ...data,
-            user_id: user.id,
-        });
+        const result = await OrderItemService.createOrderItem(
+            data,
+            user.default_hotel.id,
+            data.booking_id ?? null,
+            user.id,
+        );
 
         socketService.emitToHotelUsers(
             `hotel_${user.default_hotel.id}`,

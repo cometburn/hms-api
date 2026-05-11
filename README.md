@@ -6,7 +6,6 @@ npm run prisma:migrate
 
 # seed db
 npx ts-node prisma/seeder/admin-seeder.ts
-npx ts-node prisma/seeder/constantSeeder.ts 
 
 # to generate your password, type: 
 node

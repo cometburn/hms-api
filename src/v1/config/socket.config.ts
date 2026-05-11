@@ -1,12 +1,10 @@
 import { Server } from "socket.io";
-import { TokenHelper } from "@/helpers/token.helper";
-import { UserRepository } from "@/repositories/user.repository";
+import { verifyAccessToken, verifyRefreshToken } from "@/helpers/token.helper";
+import { getUserByIdWithDefaultHotel } from "@/repositories/user.repository";
 
 export const configureSocket = (io: Server): void => {
     io.use(async (socket, next) => {
         try {
-            const tokenHelper = new TokenHelper();
-            const userRepository = new UserRepository();
             const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(" ")[1];
 
             if (!token) {
@@ -17,7 +15,7 @@ export const configureSocket = (io: Server): void => {
 
             try {
                 // Try to verify access token
-                decoded = tokenHelper.verifyAccessToken(token);
+                decoded = verifyAccessToken(token);
             } catch (accessError) {
                 let refreshToken = null;
 
@@ -38,8 +36,8 @@ export const configureSocket = (io: Server): void => {
                 }
 
                 try {
-                    const refreshPayload = tokenHelper.verifyRefreshToken(refreshToken);
-                    const user = await userRepository.getUserByIdWithDefaultHotel(Number(refreshPayload.id));
+                    const refreshPayload = verifyRefreshToken(refreshToken);
+                    const user = await getUserByIdWithDefaultHotel(Number(refreshPayload.id));
 
                     if (!user) {
                         console.error("❌ User not found");

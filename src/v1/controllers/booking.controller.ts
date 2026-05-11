@@ -50,12 +50,16 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
         });
 
         // create order
-        await createOrder({
-            hotel_id: user.default_hotel.id,
-            booking_id: booking.id,
-            total_price: 0,
-            status: "pending",
-        });
+        await createOrder(
+            user.default_hotel.id,
+            user.id,
+            {
+                hotel_id: user.default_hotel.id,
+                booking_id: booking.id,
+                total_price: 0,
+                status: "pending",
+            }
+        );
 
         socketService.emitToHotelUsers(
             `hotel_${user.default_hotel.id}`,

@@ -45,7 +45,7 @@ export const getProducts = async (
     }
 
     return await prisma.product.findMany({
-        where: where,
+        where,
         orderBy: { name: "asc" },
         skip,
         take: limit,

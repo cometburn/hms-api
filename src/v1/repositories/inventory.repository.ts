@@ -130,3 +130,42 @@ export const deleteInventory = async (hotelId: number, id: number) => {
         },
     });
 };
+
+/**
+ * Increments stock
+ * @param productId
+ * @param quantity
+ * @returns
+ */
+export const incrementStock = async (productId: number, quantity: number) => {
+    console.log('incrementing stock for product', productId, 'by', quantity)
+    return await prisma.inventory.update({
+        where: { product_id: productId },
+        data: {
+            quantity: {
+                increment: quantity,
+            },
+        },
+    });
+};
+
+/**
+ * Decrements stock
+ * @param productId
+ * @param quantity
+ * @returns
+ */
+export const decrementStock = async (productId: number, quantity: number) => {
+    const inventory = await prisma.inventory.findUnique({ where: { product_id: productId } });
+
+    if (!inventory || inventory.quantity < quantity) {
+        throw new Error(`Insufficient stock for product ${productId}`);
+    }
+
+    return await prisma.inventory.update({
+        where: { product_id: productId },
+        data: {
+            quantity: { decrement: quantity },
+        },
+    });
+};

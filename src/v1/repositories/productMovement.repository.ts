@@ -159,3 +159,73 @@ export const updateProductMovement = async (hotelId: number, productMovementId: 
         return productMovement;
     });
 };
+
+/**
+ * Updates a product movement by booking id
+ * @param hotelId 
+ * @param bookingId 
+ * @param userId 
+ * @param data 
+ * @returns 
+ */
+export const updateProductMovementByBookingId = async (hotelId: number, bookingId: number, userId: number, data: Partial<ProductMovement>) => {
+    return prisma.$transaction(async (tx) => {
+        // Get the original movement before updating
+        const originalMovement = await tx.productMovement.findFirst({
+            where: {
+                booking_id: bookingId,
+            }
+        });
+
+        if (!originalMovement) throw new Error("Product movement not found");
+
+        const productMovement = await tx.productMovement.update({
+            where: {
+                id: originalMovement.id,
+                product: { hotel_id: hotelId }
+            },
+            data: {
+                ...data,
+                user_id: userId,
+            }
+        });
+
+        return productMovement;
+    });
+};
+
+/**
+ * Updates a product movement by order id and order item id
+ * @param hotelId
+ * @param orderId
+ * @param orderItemId
+ * @param userId
+ * @param data
+ * @returns
+ */
+export const updateProductMovementByOrderIdAndOrderItemId = async (hotelId: number, orderId: number, orderItemId: number, userId: number, data: Partial<ProductMovement>) => {
+    return prisma.$transaction(async (tx) => {
+        // Get the original movement before updating
+        const originalMovement = await tx.productMovement.findFirst({
+            where: {
+                order_id: orderId,
+                order_item_id: orderItemId
+            }
+        });
+
+        if (!originalMovement) throw new Error("Product movement not found");
+
+        const productMovement = await tx.productMovement.update({
+            where: {
+                id: originalMovement.id,
+                product: { hotel_id: hotelId }
+            },
+            data: {
+                ...data,
+                user_id: userId,
+            }
+        });
+
+        return productMovement;
+    });
+};

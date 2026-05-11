@@ -1,5 +1,6 @@
 import prisma from "@/helpers/prisma.helper";
-import { OrderItem, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { OrderItem } from "@/interfaces/types/orderItem.types";
 
 /**
  * Get Order Items
@@ -35,10 +36,18 @@ export const getOrderItemById = async (id: number) => {
  * @param data
  * @returns created Order Item
  */
-export const createOrderItem = async (data: OrderItem) => {
+export const createOrderItem = async (data: Partial<OrderItem>) => {
     return prisma.$transaction(async (tx) => {
         const orderItem = await tx.orderItem.create({
-            data,
+            data: {
+                product_id: data.product_id!,
+                order_id: data.order_id!,
+                quantity: data.quantity!,
+                total_price: data.total_price!,
+                price: data.price!,
+                user_id: data.user_id!,
+                notes: data.notes!,
+            },
             include: {
                 product: true,
             },
@@ -56,13 +65,36 @@ export const createOrderItem = async (data: OrderItem) => {
                     product_id: data.product_id
                 },
                 data: {
-                    reserved_qty: inventory.reserved_qty + data.quantity
+                    reserved_qty: inventory.reserved_qty + data.quantity!
                 }
             });
         }
 
         return orderItem;
     })
+};
+
+/**
+ * Update Order Item service
+ * @param id
+ * @param data
+ * @returns updated Order Item
+ */
+export const updateOrderItem = async (id: number, data: Partial<OrderItem>) => {
+    return await prisma.orderItem.update({
+        where: {
+            id,
+        },
+        data: {
+            product_id: data.product_id!,
+            order_id: data.order_id!,
+            quantity: data.quantity!,
+            total_price: data.total_price!,
+            price: data.price!,
+            user_id: data.user_id!,
+            notes: data.notes!,
+        },
+    });
 };
 
 /**

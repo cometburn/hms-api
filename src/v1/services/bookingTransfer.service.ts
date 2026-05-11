@@ -182,9 +182,21 @@ export const transferBooking = async (
 
     // Copy order and order items if they exist
     if (originalBooking.orders) {
+        const orders = {
+            ...originalBooking.orders,
+            transferred_from_booking_id: originalBooking.transferred_from_booking_id ?? undefined,
+        }
+
+        const cleanedOrder = {
+            ...orders,
+            order_items: orders.order_items.map(
+                ({ product, ...item }) => item
+            ),
+        };
+
         await copyOrderWithItems(
             {
-                ...originalBooking.orders,
+                ...cleanedOrder,
                 booking_id: newBooking.id,
                 total_price: originalBooking.total_price,
                 status: "pending",

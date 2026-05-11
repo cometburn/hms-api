@@ -22,8 +22,8 @@ export const getOrders = async (req: Request, res: Response) => {
 
     const result = await OrderService.getOrders({
         hotelId: user.default_hotel.id,
-        bookingId: Number(bookingId),
-        status: String(status),
+        bookingId: bookingId ? Number(bookingId) : null,
+        status: status ? String(status) : "",
         page: safePage,
         limit: safeLimit,
     });
@@ -55,10 +55,11 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
 
         if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-        const result = await OrderService.createOrder({
-            ...data,
-            user_id: user.id,
-        });
+        const result = await OrderService.createOrder(
+            user.default_hotel.id,
+            user.id,
+            data
+        );
 
         socketService.emitToHotelUsers(
             `hotel_${user.default_hotel.id}`,
@@ -67,6 +68,32 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
         );
 
         return res.status(201).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const data = req.body;
+
+        if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+        if (!data.id) throw new NotFoundError("Order not found");
+
+        const result = await OrderService.updateOrder(
+            user.default_hotel.id,
+            user.id,
+            data
+        );
+
+        socketService.emitToHotelUsers(
+            `hotel_${user.default_hotel.id}`,
+            "Order_updated",
+            result
+        );
+
+        return res.status(200).json(result);
     } catch (err) {
         next(err);
     }

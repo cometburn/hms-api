@@ -5,7 +5,8 @@ import { BadRequestError, NotFoundError } from "@/helpers/error.helper";
 import { BOOKING_EDIT_WINDOW_MINUTES } from "@/constants";
 
 import * as BookingRepository from "@/repositories/booking.repository";
-import { getOrder, updateOrder } from "@/services/order.service";
+import { getOrder } from "@/services/order.service";
+import { updateOrder } from "@/repositories/order.repository";
 import { getOrderItems } from "@/services/orderItem.service";
 import { getInventoryByProductId, updateInventory } from "@/services/inventory.service";
 import { createProductMovement } from "@/services/productMovement.service";

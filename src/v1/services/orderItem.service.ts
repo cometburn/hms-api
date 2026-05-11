@@ -1,7 +1,9 @@
-import { OrderItem } from "@prisma/client";
+import { NotFoundError } from "@/helpers/error.helper";
+
 import * as OrderItemRepository from "@/repositories/orderItem.repository";
 import { getInventoryByProductId, updateInventory } from "@/repositories/inventory.repository";
-import { NotFoundError } from "@/helpers/error.helper";
+import { createOrder } from "./order.service";
+import { OrderItem } from "@/interfaces/types/orderItem.types";
 
 /**
  * Gets all Order Items
@@ -17,8 +19,30 @@ export const getOrderItems = async (orderId: number) => {
  * @param data
  * @returns created Order Item
  */
-export const createOrderItem = async (data: OrderItem) => {
-    return await OrderItemRepository.createOrderItem(data);
+export const createOrderItem = async (data: OrderItem, hotelId: number, bookingId: number, userId: number) => {
+    console.log('createOrderItem data', data)
+
+    let orderId = data.order_id;
+    if (orderId === 0) {
+        const order = await createOrder(
+            hotelId,
+            userId,
+            {
+                hotel_id: hotelId,
+                booking_id: bookingId,
+                total_price: 0,
+                status: "completed",
+            });
+
+        orderId = order.id;
+    }
+
+    return await OrderItemRepository.createOrderItem({
+        ...data,
+        order_id: orderId,
+        user_id: userId,
+        transferred_from_booking_id: data.transferred_from_booking_id || null,
+    });
 };
 
 /**
@@ -31,11 +55,11 @@ export const deleteOrderItem = async (hotelId: number, orderItemId: number) => {
 
         const inventory = await getInventoryByProductId(hotelId, orderItem.product_id);
 
-        if (!inventory) throw new NotFoundError("Inventory not found");
-
-        await updateInventory(hotelId, inventory.id, {
-            reserved_qty: inventory.reserved_qty - orderItem.quantity
-        });
+        if (inventory) {
+            await updateInventory(hotelId, inventory.id, {
+                reserved_qty: inventory.reserved_qty - orderItem.quantity
+            });
+        }
 
         return await OrderItemRepository.deleteOrderItem(orderItemId);
     } else {

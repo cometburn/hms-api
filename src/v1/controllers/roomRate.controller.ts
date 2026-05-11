@@ -65,8 +65,6 @@ export const updateRoomRate = async (req: Request, res: Response, next: NextFunc
             throw new NotFoundError("User hotel missing");
         }
 
-        console.log("data", data);
-
         const result = await RoomRateService.updateRoomRate(
             user.default_hotel.id,
             Number(id),

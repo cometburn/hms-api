@@ -41,12 +41,12 @@ export class SocketHandlers {
 
                 console.log(`🏨 User ${userId} joined ${roomName}`);
 
-                // Notify others in the room
-                socket.to(roomName).emit("user_joined", {
-                    userId,
-                    socketId: socket.id,
-                    timestamp: new Date(),
-                });
+                // // Notify others in the room
+                // socket.to(roomName).emit("user_joined", {
+                //     userId,
+                //     socketId: socket.id,
+                //     timestamp: new Date(),
+                // });
 
                 // Send success response
                 if (callback) {

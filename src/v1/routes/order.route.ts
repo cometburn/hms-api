@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { withValidation } from "@/middlewares/validation.middleware";
 
-import { getOrders, createOrder, deleteOrder } from "@/controllers/order.controller";
-import { orderSchema } from "@/interfaces/types/order.types";
+import { getOrders, createOrder, updateOrder, deleteOrder } from "@/controllers/order.controller";
+import { directOrderSchema } from "@/interfaces/types/order.types";
 
 const orderRoute = Router();
 
@@ -48,7 +48,31 @@ orderRoute.get("/", getOrders);
  *                 data:
  *                   type: object
  */
-orderRoute.post("/", withValidation(orderSchema, createOrder));
+orderRoute.post("/", withValidation(directOrderSchema.omit({ id: true, hotel_id: true }), createOrder));
+
+/**
+ * @openapi
+ * /api/v1/orders/:id:
+ *   put:
+ *     summary: Update an order
+ *     tags:
+ *       - Orders
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *     responses:
+ *       200:
+ *         description: Order updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ */
+orderRoute.put("/:id", withValidation(directOrderSchema.omit({ hotel_id: true }), updateOrder));
 
 /**
  * @openapi
