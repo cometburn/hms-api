@@ -5,6 +5,7 @@ export const allowedOrigins = [
     "http://localhost:9000",
     "http://localhost:9001",
     "http://192.168.0.141:9000",
+    "https://cler-app-one.vercel.app/"
 ].filter((origin): origin is string => !!origin);
 
 export const corsOptions: CorsOptions = {
