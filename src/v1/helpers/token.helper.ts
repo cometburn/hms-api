@@ -56,11 +56,12 @@ export const generateTokens = (user: User): { accessToken: string; refreshToken:
  * @param refreshToken
  */
 export const setRefreshTokenCookie = (res: Response, refreshToken: string): void => {
-    const isProduction = process.env.NODE_ENV === "production";
+    // const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true, // Prevent JS access
-        secure: isProduction, // Use HTTPS in production
+        // secure: isProduction, // Use HTTPS in production
+        secure: true,
         sameSite: "strict", // Prevent CSRF
         maxAge: COOKIE_MAX_AGE, // 7 days in ms
         path: "/", // Optional: limit cookie path
