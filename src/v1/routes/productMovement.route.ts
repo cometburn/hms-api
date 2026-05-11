@@ -48,7 +48,7 @@ productMovementRoute.get("/", getProductMovements);
  *                 data:
  *                   type: object
  */
-productMovementRoute.post("/", withValidation(productMovementSchema, createProductMovement));
+productMovementRoute.post("/", withValidation(productMovementSchema.omit({ user_id: true }), createProductMovement));
 
 /**
  * @openapi
