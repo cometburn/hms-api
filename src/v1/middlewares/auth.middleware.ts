@@ -11,8 +11,6 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     try {
         const bearer = req.headers.authorization;
 
-        console.log('bearer', bearer)
-
         if (!bearer?.startsWith("Bearer ")) {
             throw new UnauthorizedError("No token provided");
         }
@@ -27,6 +25,9 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
         } catch (err) {
             // If access token expired, check refresh token
             const refreshToken = req.cookies?.refreshToken;
+
+            console.log('refreshToken', refreshToken)
+
             if (!refreshToken) throw new UnauthorizedError("Session expired");
 
             try {
