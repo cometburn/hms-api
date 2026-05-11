@@ -5,7 +5,10 @@ import { getUserByIdWithDefaultHotel } from "@/repositories/user.repository";
 export const configureSocket = (io: Server): void => {
     io.use(async (socket, next) => {
         try {
+            console.log('socket.handshake', socket.handshake.auth)
             const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(" ")[1];
+
+            console.log('token', token)
 
             if (!token) {
                 return next(new Error("Authentication error: No token provided"));
