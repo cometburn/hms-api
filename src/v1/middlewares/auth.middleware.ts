@@ -26,7 +26,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
             // If access token expired, check refresh token
             const refreshToken = req.cookies?.refreshToken;
 
-            console.log('refreshToken', refreshToken)
+            console.log('req.cookies', req.cookies)
 
             if (!refreshToken) throw new UnauthorizedError("Session expired");
 
