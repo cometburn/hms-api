@@ -62,7 +62,7 @@ export const setRefreshTokenCookie = (res: Response, refreshToken: string): void
         httpOnly: true, // Prevent JS access
         // secure: isProduction, // Use HTTPS in production
         secure: true,
-        sameSite: "strict", // Prevent CSRF
+        sameSite: "none", // Prevent CSRF
         maxAge: COOKIE_MAX_AGE, // 7 days in ms
         path: "/", // Optional: limit cookie path
     });
