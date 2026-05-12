@@ -8,33 +8,36 @@ import * as RoomService from "@/services/room.service";
  * @param req
  * @param res
  */
-export const getAllRooms = async (req: Request, res: Response) => {
-    const user = req.user!;
-    if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+export const getAllRooms = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-    const page = Number(req.query.page);
-    const limit = Number(req.query.limit);
-    const search = (req.query.search as string) || "";
-    const roomTypeId = (req.query.room_type_id as string) || "";
-
-    // Allow 0 to pass through; default only if missing or invalid
-    const safePage = !isNaN(page) ? page : 1;
-    const safeLimit = !isNaN(limit) ? limit : 10;
+        const page = Number(req.query.page);
+        const limit = Number(req.query.limit);
+        const search = (req.query.search as string) || "";
+        const roomTypeId = (req.query.room_type_id as string) || "";
+        const safePage = !isNaN(page) ? page : 1;
+        const safeLimit = !isNaN(limit) ? limit : 10;
 
 
-    if (roomTypeId) {
-        const result = await RoomService.getAvailableRoomsByRoomTypeId(user.default_hotel.id, Number(roomTypeId));
+        if (roomTypeId) {
+            const result = await RoomService.getAvailableRoomsByRoomTypeId(user.default_hotel.id, Number(roomTypeId));
+            return res.json(result);
+        }
+
+        const result = await RoomService.getAllRooms({
+            hotelId: user.default_hotel.id,
+            page: safePage,
+            limit: safeLimit,
+            search,
+        });
+
         return res.json(result);
+
+    } catch (err) {
+        next(err);
     }
-
-    const result = await RoomService.getAllRooms({
-        hotelId: user.default_hotel.id,
-        page: safePage,
-        limit: safeLimit,
-        search,
-    });
-
-    return res.json(result);
 };
 
 /**
