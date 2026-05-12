@@ -2,9 +2,42 @@ import { Router } from "express";
 import { withValidation } from "@/middlewares/validation.middleware";
 import { bookingSchema, updateBookingSchema } from "@/interfaces/types/booking.types";
 
-import { createBooking, updateBooking, getBookingById } from "@/controllers/booking.controller";
+import { createBooking, updateBooking, getBookingById, getAllBookings } from "@/controllers/booking.controller";
 
 const router = Router();
+
+/**
+ * @openapi
+ * /api/v1/bookings:
+ *   get:
+ *     summary: Get all bookings
+ *     tags:
+ *       - Bookings
+ *     responses:
+ *       200:
+ *         description: List of bookings
+ */
+router.get("/", getAllBookings);
+
+/**
+ * @openapi
+ * /api/v1/bookings/{bookingId}:
+ *   get:
+ *     summary: Get booking by ID
+ *     tags:
+ *       - Bookings
+ *     parameters:
+ *       - in: path
+ *         name: bookingId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Booking found
+ */
+router.get("/:bookingId", getBookingById);
 
 /**
  * @openapi
@@ -67,24 +100,6 @@ router.post("/", withValidation(bookingSchema, createBooking));
  */
 router.put("/:bookingId", withValidation(updateBookingSchema, updateBooking));
 
-/**
- * @openapi
- * /api/v1/bookings/{bookingId}:
- *   get:
- *     summary: Get booking by ID
- *     tags:
- *       - Bookings
- *     parameters:
- *       - in: path
- *         name: bookingId
- *         required: true
- *         schema:
- *           type: integer
- *         example: 1
- *     responses:
- *       200:
- *         description: Booking found
- */
-router.get("/:bookingId", getBookingById);
+
 
 export default router;
