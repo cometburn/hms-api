@@ -219,7 +219,7 @@ export const transferBooking = async (
     await updateBookingStatus(
         originalBooking.id,
         'transferred',
-        `Transferred to Room ${newBooking.room_id} at ${now.toISOString()}. Reason: ${data.note || 'N/A'}`
+        `Transferred to Room ID ${newBooking.room_id} at ${now.toISOString()}. Reason: ${data.note || 'N/A'}`
     );
 
     socketService.emitToHotelUsers(
