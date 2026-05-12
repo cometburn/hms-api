@@ -2,6 +2,7 @@ import prisma from "@/helpers/prisma.helper";
 import { createHotel as createHotelRepo } from "@/repositories/hotel.repository";
 import { createUserHotelLink } from "@/repositories/userHotel.repository";
 import { getUserHotels } from "@/repositories/user.repository";
+import { Hotel } from "@prisma/client";
 
 /**
  * Creates a hotel
@@ -9,7 +10,7 @@ import { getUserHotels } from "@/repositories/user.repository";
  * @param data
  * @returns
  */
-export const createHotel = async (userId: number, data: any) => {
+export const createHotel = async (userId: number, data: Hotel) => {
     const hotel = await prisma.$transaction(async (tx) => {
         const newHotel = await createHotelRepo(data);
         const existing = await getUserHotels(userId);
