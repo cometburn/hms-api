@@ -9,20 +9,23 @@ import { Booking } from "@prisma/client";
  * @param limit
  * @returns list of bookings
  */
-export const getBookings = async (hotelId: number, search: string, skip: number, limit: number) => {
+export const getBookings = async (hotelId: number, search: string, skip: number, limit: number, status: string = "check_out") => {
     return await prisma.booking.findMany({
         where: {
             hotel_id: hotelId,
+            status,
         },
         orderBy: {
-            room: {
-                name: "asc",
-            },
+            updated_at: "desc",
         },
         skip,
         take: limit,
         include: {
-            room: true,
+            room: {
+                include: {
+                    room_type: true,
+                }
+            }
         },
     });
 }
@@ -33,10 +36,11 @@ export const getBookings = async (hotelId: number, search: string, skip: number,
  * @param search
  * @returns
  */
-export const countBookings = async (hotelId: number, search: string) => {
+export const countBookings = async (hotelId: number, search: string, status: string = "check_out") => {
     return await prisma.booking.count({
         where: {
             hotel_id: hotelId,
+            status
         },
     });
 }
@@ -123,6 +127,7 @@ export const findBookingById = async (hotelId: number, bookingId: number) => {
                     },
                 },
             },
+            room: true,
             room_rate: true,
             user: {
                 select: {
