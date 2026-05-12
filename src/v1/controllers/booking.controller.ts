@@ -6,6 +6,32 @@ import * as BookingService from "@/services/booking.service";
 import { createOrder } from "@/services/order.service";
 
 /**
+ * Get All Bookings
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const getAllBookings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        if (!user.default_hotel) throw new NotFoundError("User hotel missing");
+
+        const page = Number(req.query.page);
+        const limit = Number(req.query.limit);
+        const search = (req.query.search as string) || "";
+        const safePage = !isNaN(page) ? page : 1;
+        const safeLimit = !isNaN(limit) ? limit : 10;
+
+        const result = await BookingService.getAllBookings(user.default_hotel.id, search, safePage, safeLimit);
+
+        return res.json(result);
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
  * Get Booking By Id
  * @param req
  * @param res
@@ -91,7 +117,7 @@ export const updateBooking = async (req: Request, res: Response, next: NextFunct
 
         if (!user.default_hotel) throw new NotFoundError("User hotel missing");
 
-        const hotelId = user.default_hotel.id; // destructure once after the check
+        const hotelId = user.default_hotel.id;
 
         const result = await BookingService.updateBooking(hotelId, user.id, bookingId, data);
 
