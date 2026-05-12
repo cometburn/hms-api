@@ -1,4 +1,4 @@
-import { Booking } from "@prisma/client";
+import { Booking, BookingCharge } from "@prisma/client";
 
 import { compareObjects } from "@/utils/object.utils";
 import { BadRequestError, NotFoundError } from "@/helpers/error.helper";
@@ -10,6 +10,8 @@ import { updateOrder } from "@/repositories/order.repository";
 import { getOrderItems } from "@/services/orderItem.service";
 import { getInventoryByProductId, updateInventory } from "@/services/inventory.service";
 import { createProductMovement } from "@/services/productMovement.service";
+import { createCharge } from "@/repositories/bookingCharge.repository";
+
 /**
  * Get all Bookings service
  * @param hotelId
@@ -18,12 +20,12 @@ import { createProductMovement } from "@/services/productMovement.service";
  * @param limit
  * @returns
  */
-export const getAllBookings = async (hotelId: number, search: string, page: number, limit: number) => {
+export const getAllBookings = async (hotelId: number, search: string, page: number, limit: number, status: string = "check_out") => {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
-        BookingRepository.getBookings(hotelId, search, skip, limit),
-        BookingRepository.countBookings(hotelId, search),
+        BookingRepository.getBookings(hotelId, search, skip, limit, status),
+        BookingRepository.countBookings(hotelId, search, status),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -55,7 +57,7 @@ export const createBooking = async (data: Booking) => {
  * @param data
  * @returns
  */
-export const updateBooking = async (hotelId: number, userId: number, bookingId: number, data: any) => {
+export const updateBooking = async (hotelId: number, userId: number, bookingId: number, data: Booking) => {
     const booking = await BookingRepository.findBookingById(hotelId, bookingId);
     if (!booking) throw new NotFoundError("Booking not found");
 
@@ -125,6 +127,7 @@ export const updateBooking = async (hotelId: number, userId: number, bookingId: 
                     }
                 }
             }
+
             break;
     }
 
