@@ -47,7 +47,7 @@ orderItemRoute.get("/:orderId", getOrderItems);
  *                 data:
  *                   type: object
  */
-orderItemRoute.post("/", withValidation(orderItemSchema, createOrderItem));
+orderItemRoute.post("/", withValidation(orderItemSchema.omit({ transferred_from_booking_id: true }), createOrderItem));
 
 /**
  * @openapi
