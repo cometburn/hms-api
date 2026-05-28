@@ -33,6 +33,27 @@ export const getRooms = async (hotelId: number, search: string, skip: number, li
 };
 
 /**
+ * Get room by Id
+ * @param id 
+ * @returns 
+ */
+export const getRoomById = async (id: number) => {
+    return await prisma.room.findFirst({
+        where: {
+            id
+        },
+        include: {
+            room_type: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
+    });
+};
+
+/**
  * Gets all rooms by room type id
  * @param roomTypeId
  * @returns
