@@ -104,6 +104,7 @@ export const getUserByIdWithDefaultHotel = async (id: number) => {
                 where: { is_default: true },
                 select: {
                     is_default: true,
+                    owner_id: true,
                     hotel: {
                         select: {
                             id: true,
@@ -118,11 +119,16 @@ export const getUserByIdWithDefaultHotel = async (id: number) => {
 
     if (!user) return null;
 
-    const defaultHotel = user.hotels.find((h) => h.is_default)?.hotel ?? null;
+    const defaultHotel = user.hotels.find((h) => h.is_default);
 
     return {
         ...user,
-        default_hotel: defaultHotel,
+        default_hotel: defaultHotel
+            ? {
+                ...defaultHotel.hotel,
+                owner_id: defaultHotel.owner_id ?? null,
+            }
+            : null,
     };
 };
 
