@@ -4,6 +4,11 @@ import { socketService } from "@/sockets/socket.service";
 
 import * as BookingService from "@/services/booking.service";
 import { createOrder } from "@/services/order.service";
+import { sendMail } from "@/helpers/mailer.helper";
+import { getUserById, getUserHotels } from "@/repositories/user.repository";
+import { getRoomById } from "@/repositories/room.repository";
+import { User } from "@prisma/client";
+import { formatDate } from "@/utils/date.utils";
 
 /**
  * Get All Bookings
@@ -93,6 +98,26 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
             booking
         );
 
+
+        let owner
+
+        if (user.default_hotel.owner_id) {
+            owner = await getUserById(user.default_hotel.owner_id)
+        }
+
+        sendMail({
+            to: owner ? owner.email : user.email,
+            type: 'check_in',
+            type_label: 'Check In',
+            hotel: user.default_hotel.name,
+            room_name: booking.room?.name,
+            room_type: booking.room?.room_type.name,
+            room_rate: booking.room_rate.name,
+            extra_person: booking.extra_person,
+            start: formatDate(booking?.start_datetime, "MM/DD/YYYY hh:mm A"),
+            end: formatDate(booking?.end_datetime, "MM/DD/YYYY hh:mm A"),
+        })
+
         return res.status(201).json({
             message: "Booking created successfully",
             data: booking,
@@ -119,15 +144,36 @@ export const updateBooking = async (req: Request, res: Response, next: NextFunct
 
         const hotelId = user.default_hotel.id;
 
-        const result = await BookingService.updateBooking(hotelId, user.id, bookingId, data);
+        const booking = await BookingService.updateBooking(hotelId, user.id, bookingId, data);
 
         if (data.status === "check_out") {
-            socketService.emitToHotelUsers(`hotel_${hotelId}`, "check_out", result);
+            socketService.emitToHotelUsers(`hotel_${hotelId}`, "check_out", booking);
+
+            let owner
+
+            if (user.default_hotel.owner_id) {
+                owner = await getUserById(user.default_hotel.owner_id)
+            }
+
+            sendMail({
+                to: owner ? owner.email : user.email,
+                type: 'check_out',
+                type_label: 'Check Out',
+                hotel: user.default_hotel.name,
+                room_name: booking.room?.name,
+                room_type: booking.room?.room_type.name,
+                room_rate: booking.room_rate.name,
+                extra_person: booking.extra_person,
+                start: formatDate(booking?.start_datetime, "MM/DD/YYYY hh:mm A"),
+                end: formatDate(booking?.end_datetime, "MM/DD/YYYY hh:mm A"),
+                payment_type: booking.payment_type,
+                payment_status: booking.payment_status,
+            })
         }
 
         return res.status(200).json({
             message: "Booking updated successfully",
-            data: result,
+            data: booking,
         });
     } catch (err) {
         next(err);
