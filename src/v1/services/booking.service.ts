@@ -1,4 +1,4 @@
-import { Booking, BookingCharge } from "@prisma/client";
+import { Booking } from "@prisma/client";
 
 import { compareObjects } from "@/utils/object.utils";
 import { BadRequestError, NotFoundError } from "@/helpers/error.helper";
@@ -10,7 +10,6 @@ import { updateOrder } from "@/repositories/order.repository";
 import { getOrderItems } from "@/services/orderItem.service";
 import { getInventoryByProductId, updateInventory } from "@/services/inventory.service";
 import { createProductMovement } from "@/services/productMovement.service";
-import { createCharge } from "@/repositories/bookingCharge.repository";
 
 /**
  * Get all Bookings service
