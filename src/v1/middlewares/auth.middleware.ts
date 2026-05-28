@@ -33,7 +33,8 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
                 const user = await getUserByIdWithDefaultHotel(
                     Number(refreshPayload.id)
                 );
-                if (!user) throw new UnauthorizedError("Invalid refresh token");
+
+                if (!user) throw new UnauthorizedError("User not found");
 
                 // 🔹 Generate a new access token and set it in response header
                 const newAccessToken = generateAccessToken(user.id, user.email);
