@@ -10,6 +10,7 @@ export interface SanitizedUser {
     // All hotels linked to the user
     hotels: {
         is_default: boolean;
+        owner_id: number | null;
         hotel: {
             id: number;
             name: string;
@@ -22,6 +23,7 @@ export interface SanitizedUser {
         id: number;
         name: string;
         address: string;
+        owner_id: number | null;
     } | null;
 }
 
