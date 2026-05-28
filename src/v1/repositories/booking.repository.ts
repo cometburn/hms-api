@@ -1,5 +1,6 @@
 import prisma from "@/helpers/prisma.helper";
 import { Booking } from "@prisma/client";
+import { includes } from "zod";
 
 /**
  * Get Bookings
@@ -51,7 +52,15 @@ export const countBookings = async (hotelId: number, search: string, status: str
  * @returns
  */
 export const createBooking = async (data: any) => {
-    return await prisma.booking.create({ data });
+    return await prisma.booking.create({
+        data,
+        include: {
+            room: {
+                include: { room_type: true }
+            },
+            room_rate: true
+        }
+    });
 }
 
 /**
@@ -163,7 +172,19 @@ export const findBookingByRoomId = async (hotelId: number, roomId: number) => {
  * @returns
  */
 export const updateBookingById = async (hotelId: number, bookingId: number, data: any) => {
-    return await prisma.booking.update({ where: { id: bookingId, hotel_id: hotelId }, data });
+    return await prisma.booking.update({
+        where: {
+            id: bookingId,
+            hotel_id: hotelId
+        },
+        data,
+        include: {
+            room: {
+                include: { room_type: true }
+            },
+            room_rate: true
+        }
+    });
 }
 
 /**
